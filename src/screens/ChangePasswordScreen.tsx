@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../context/AuthContext";
 import { changeUserPassword } from "../db/auth";
+import { getFontFamily } from "../config/theme";
 
 export default function ChangePasswordScreen() {
   const insets = useSafeAreaInsets();
@@ -181,12 +182,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     marginBottom: 32,
   },
@@ -199,6 +202,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     color: "#333",
     marginBottom: 8,
   },
@@ -209,11 +213,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     color: "#000",
     backgroundColor: "#fff",
   },
   hint: {
     fontSize: 12,
+    fontFamily: getFontFamily("regular"),
     color: "#999",
     marginTop: 4,
   },
@@ -231,5 +237,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
 });

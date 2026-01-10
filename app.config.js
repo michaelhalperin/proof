@@ -10,6 +10,9 @@ module.exports = {
     extra: {
       RESEND_API_KEY: process.env.RESEND_API_KEY,
       EMAIL_FROM: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      eas: {
+        projectId: "0702398c-4dc2-4201-a11c-3bf479012380"
+      }
     },
     icon: "./assets/icon.png",
     splash: {

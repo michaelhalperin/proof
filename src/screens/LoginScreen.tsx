@@ -17,6 +17,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useAuth } from "../context/AuthContext";
 import { RootStackParamList } from "../types/navigation";
 import { getUserFriendlyError } from "../utils/errorMessages";
+import { getFontFamily } from "../config/theme";
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -158,6 +159,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     textAlign: "center",
     marginBottom: 8,
@@ -165,6 +167,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     textAlign: "center",
     marginBottom: 40,
@@ -178,6 +181,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     color: "#333",
     marginBottom: 8,
   },
@@ -188,6 +192,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     color: "#000",
     backgroundColor: "#fff",
   },
@@ -205,6 +210,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   linkButton: {
     marginTop: 20,
@@ -212,15 +218,18 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 14,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
   },
   linkTextSmall: {
     fontSize: 14,
     color: "#000",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   linkTextBold: {
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
   },
 });

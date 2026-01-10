@@ -42,6 +42,7 @@ import {
 } from "../utils/location";
 import * as Crypto from "expo-crypto";
 import * as FileSystem from "expo-file-system/legacy";
+import { getFontFamily } from "../config/theme";
 
 type LogTodayScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -725,6 +726,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     marginBottom: 8,
     marginTop: 16,
@@ -735,11 +737,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     minHeight: 120,
     backgroundColor: "#fafafa",
   },
   charCount: {
     fontSize: 12,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     textAlign: "right",
     marginTop: 4,
@@ -759,6 +763,7 @@ const styles = StyleSheet.create({
   },
   photoButtonText: {
     fontSize: 16,
+    fontFamily: getFontFamily("medium"),
     color: "#000",
     fontWeight: "500",
   },
@@ -809,6 +814,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   locationContainer: {
     flexDirection: "row",
@@ -829,6 +835,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 14,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     flex: 1,
   },
@@ -849,6 +856,7 @@ const styles = StyleSheet.create({
   },
   addLocationText: {
     fontSize: 14,
+    fontFamily: getFontFamily("medium"),
     color: "#000",
     fontWeight: "500",
   },
@@ -871,6 +879,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   tagRemoveIcon: {
     marginLeft: 2,
@@ -883,6 +892,7 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 10,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   predefinedTagsGrid: {
     flexDirection: "row",
@@ -908,6 +918,7 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 14,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   predefinedTagTextSelected: {
     color: "#fff",
@@ -927,6 +938,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     backgroundColor: "#fafafa",
   },
   addCustomTagButton: {

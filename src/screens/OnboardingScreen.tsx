@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
+import { getFontFamily } from '../config/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -203,6 +204,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     fontWeight: '500',
+    fontFamily: getFontFamily('medium'),
   },
   scrollView: {
     flex: 1,
@@ -230,12 +232,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
+    fontFamily: getFontFamily('bold'),
     color: '#000',
     textAlign: 'center',
     marginBottom: 16,
   },
   description: {
     fontSize: 18,
+    fontFamily: getFontFamily('regular'),
     color: '#666',
     textAlign: 'center',
     lineHeight: 28,
@@ -275,6 +279,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
     fontWeight: '500',
+    fontFamily: getFontFamily('medium'),
     marginLeft: 4,
   },
   nextButton: {
@@ -294,6 +299,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     fontWeight: '600',
+    fontFamily: getFontFamily('semiBold'),
   },
   nextButtonIcon: {
     marginLeft: 8,

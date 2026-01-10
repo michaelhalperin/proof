@@ -36,6 +36,13 @@ const RATE_LIMIT_CONFIG = {
 const STORE_PREFIX = 'rate_limit_';
 
 /**
+ * Email addresses that are exempt from rate limiting
+ */
+const RATE_LIMIT_WHITELIST = [
+  'michaelhalperin2@gmail.com',
+];
+
+/**
  * Encode a key to be safe for SecureStore
  * Replaces special characters with URL-safe equivalents
  */
@@ -88,6 +95,16 @@ export async function checkRateLimit(
   identifier: string,
   type: keyof typeof RATE_LIMIT_CONFIG = 'AUTH'
 ): Promise<{ allowed: boolean; remainingAttempts: number; lockedUntil?: number }> {
+  // Check if identifier is whitelisted (case-insensitive)
+  const normalizedIdentifier = identifier.toLowerCase().trim();
+  if (RATE_LIMIT_WHITELIST.includes(normalizedIdentifier)) {
+    // Always allow whitelisted emails
+    return {
+      allowed: true,
+      remainingAttempts: 999, // High number to indicate unlimited
+    };
+  }
+
   const config = RATE_LIMIT_CONFIG[type];
   const key = `${type}_${identifier}`;
   const now = Date.now();

@@ -30,6 +30,7 @@ import { formatDateKey, formatTimestamp } from "../utils/dateUtils";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { sharePDF } from "../utils/shareUtils";
+import { getFontFamily } from "../config/theme";
 
 const ADMIN_USER_ID = "4051afae-cd51-4518-b5e6-d1463453743b";
 

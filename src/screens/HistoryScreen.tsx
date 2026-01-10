@@ -24,6 +24,7 @@ import {
   formatDateKey,
 } from "../utils/dateUtils";
 import { getAllRecords } from "../db/database";
+import { getFontFamily } from "../config/theme";
 
 type HistoryScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, "History">,
@@ -322,6 +323,7 @@ const styles = StyleSheet.create({
   viewToggleText: {
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#666",
   },
   viewToggleTextActive: {
@@ -343,6 +345,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   list: {
     flex: 1,
@@ -367,10 +370,12 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     color: "#000",
   },
   dateTextToday: {
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   statusText: {
     fontSize: 16,

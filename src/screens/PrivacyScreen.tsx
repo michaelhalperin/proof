@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { getFontFamily } from "../config/theme";
 
 export default function PrivacyScreen() {
   const insets = useSafeAreaInsets();
@@ -125,6 +126,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     textAlign: "center",
     letterSpacing: -0.5,
@@ -143,12 +145,14 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 18,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     marginTop: 12,
     marginBottom: 8,
   },
   featureText: {
     fontSize: 15,
+    fontFamily: getFontFamily("regular"),
     color: "#333",
     lineHeight: 22,
   },
@@ -166,5 +170,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: "center",
     fontStyle: "italic",
+    fontFamily: getFontFamily("regular", true),
   },
 });

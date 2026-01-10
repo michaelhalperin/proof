@@ -20,6 +20,7 @@ import {
   CalendarHeatmapData,
 } from "../utils/statistics";
 import dayjs from "dayjs";
+import { getFontFamily } from "../config/theme";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -331,6 +332,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     textAlign: "center",
   },
@@ -344,6 +346,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#666",
     marginTop: 24,
     marginBottom: 8,
@@ -351,6 +354,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
+    fontFamily: getFontFamily("regular"),
     color: "#999",
     textAlign: "center",
     lineHeight: 24,
@@ -362,6 +366,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
   },
   overviewGrid: {
@@ -388,6 +393,7 @@ const styles = StyleSheet.create({
   overviewValue: {
     fontSize: 28,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     marginTop: 8,
     marginBottom: 4,
@@ -396,6 +402,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -415,6 +422,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     marginBottom: 16,
   },
@@ -433,15 +441,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     marginBottom: 8,
   },
   streakValue: {
     fontSize: 36,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
   },
   streakUnit: {
     fontSize: 14,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     marginTop: 4,
   },
@@ -466,17 +477,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 10,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
   },
   tagName: {
     flex: 1,
     fontSize: 16,
     color: "#000",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   tagCount: {
     fontSize: 16,
     color: "#666",
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   chartContainer: {
     alignItems: "center",
@@ -509,6 +523,7 @@ const styles = StyleSheet.create({
   },
   heatmapLegendText: {
     fontSize: 12,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
   },
   heatmapLegendColors: {

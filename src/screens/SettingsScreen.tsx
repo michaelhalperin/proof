@@ -37,6 +37,7 @@ import {
   isMapTabVisible,
   setMapTabVisible,
 } from "../utils/preferences";
+import { getFontFamily } from "../config/theme";
 
 type SettingsScreenNavigationProp =
   NativeStackNavigationProp<RootStackParamList>;
@@ -828,8 +829,9 @@ export default function SettingsScreen() {
             </View>
           </View>
 
+          {/* this will be commented out until we have a use for it */}
           {/* Appearance Section */}
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <Text style={styles.sectionTitle}>Appearance</Text>
             <View style={styles.card}>
               <TouchableOpacity
@@ -896,7 +898,7 @@ export default function SettingsScreen() {
                 </View>
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
 
           {/* App Section */}
           <View style={styles.section}>
@@ -919,7 +921,7 @@ export default function SettingsScreen() {
                 label="Privacy & Security"
                 onPress={() => navigation.navigate("Privacy")}
               />
-              {user?.id === "4051afae-cd51-4518-b5e6-d1463453743b" && (
+              {user?.email === "michaelhalperin2@gmail.com" && (
                 <>
                   <View style={styles.divider} />
                   <SettingItem
@@ -1142,6 +1144,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#666",
     textTransform: "uppercase",
     letterSpacing: 0.8,
@@ -1175,11 +1178,13 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: 18,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     marginBottom: 4,
   },
   accountEmail: {
     fontSize: 14,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
   },
   divider: {
@@ -1217,6 +1222,7 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 15,
     fontWeight: "400",
+    fontFamily: getFontFamily("regular"),
     color: "#000",
   },
   settingLabelDanger: {
@@ -1224,6 +1230,7 @@ const styles = StyleSheet.create({
   },
   settingValue: {
     fontSize: 13,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     marginTop: 2,
   },
@@ -1244,11 +1251,13 @@ const styles = StyleSheet.create({
     color: "#666",
     marginLeft: 12,
     fontWeight: "400",
+    fontFamily: getFontFamily("regular"),
   },
   infoValue: {
     fontSize: 15,
     color: "#000",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   verificationStatus: {
     flexDirection: "row",
@@ -1275,6 +1284,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ff3b30",
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     marginLeft: 8,
   },
   deleteAccountButton: {
@@ -1292,6 +1302,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ff3b30",
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     marginLeft: 8,
   },
   buttonDisabled: {
@@ -1366,6 +1377,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 22,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
   },
   modalCloseButton: {
@@ -1385,6 +1397,7 @@ const styles = StyleSheet.create({
   timeDisplayText: {
     fontSize: 48,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     marginBottom: 8,
     letterSpacing: 2,
@@ -1409,6 +1422,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlign: "center",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -1420,12 +1434,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     textAlign: "center",
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     backgroundColor: "#fafafa",
   },
   timeSeparator: {
     fontSize: 32,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#666",
     marginBottom: 12,
     paddingHorizontal: 4,
@@ -1456,10 +1472,12 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   modalButtonSaveText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
 });

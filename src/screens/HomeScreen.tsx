@@ -25,6 +25,7 @@ import {
   getPhotos,
 } from "../db/database";
 import { Record } from "../db/database";
+import { getFontFamily } from "../config/theme";
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, "Home">,
@@ -209,6 +210,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     textAlign: "center",
+    fontFamily: getFontFamily("regular"),
   },
   header: {
     marginBottom: 24,
@@ -216,12 +218,14 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 32,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     marginBottom: 4,
   },
   dateText: {
     fontSize: 16,
     fontWeight: "400",
+    fontFamily: getFontFamily("regular"),
     color: "#666",
   },
   card: {
@@ -252,6 +256,7 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 20,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     marginBottom: 4,
   },
@@ -259,6 +264,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     fontWeight: "400",
+    fontFamily: getFontFamily("regular"),
   },
   recordPreview: {
     backgroundColor: "#f9f9f9",
@@ -275,6 +281,7 @@ const styles = StyleSheet.create({
   recordPreviewText: {
     fontSize: 14,
     color: "#666",
+    fontFamily: getFontFamily("regular"),
     flex: 1,
   },
   primaryButton: {
@@ -301,6 +308,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   statsContainer: {
     flexDirection: "row",
@@ -324,6 +332,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 28,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     marginTop: 8,
     marginBottom: 4,
@@ -332,6 +341,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },

@@ -1,14 +1,22 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { View, ActivityIndicator, Linking } from "react-native";
+import * as Font from "expo-font";
+import {
+  Merriweather_400Regular,
+  Merriweather_700Bold,
+  Merriweather_400Regular_Italic,
+  Merriweather_700Bold_Italic,
+} from "@expo-google-fonts/merriweather";
 import { initDatabase } from "./src/db/database";
 import { initializeNotifications } from "./src/utils/notifications";
 import { RootStackParamList } from "./src/types/navigation";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { ErrorBoundary } from "./src/components/ErrorBoundary";
 import { logError, logInfo } from "./src/utils/logger";
+import { getFontFamily } from "./src/config/theme";
 import TabNavigator from "./src/navigation/TabNavigator";
 import LoginScreen from "./src/screens/LoginScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
@@ -72,6 +80,7 @@ function AppNavigator() {
           headerTintColor: "#000",
           headerTitleStyle: {
             fontWeight: "600",
+            fontFamily: getFontFamily("semiBold"),
           },
           headerBackTitle: "",
         }}
@@ -156,7 +165,28 @@ function AppNavigator() {
 }
 
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
   useEffect(() => {
+    // Load fonts first
+    async function loadFonts() {
+      try {
+        await Font.loadAsync({
+          Merriweather_400Regular,
+          Merriweather_700Bold,
+          Merriweather_400Regular_Italic,
+          Merriweather_700Bold_Italic,
+        });
+        setFontsLoaded(true);
+        logInfo("Fonts loaded successfully");
+      } catch (error) {
+        logError("Failed to load fonts", {}, error instanceof Error ? error : new Error(String(error)));
+        setFontsLoaded(true); // Continue even if fonts fail to load
+      }
+    }
+
+    loadFonts();
+
     // Initialize database on app start
     initDatabase().catch((error) => {
       logError("Failed to initialize database", {}, error);
@@ -169,6 +199,21 @@ export default function App() {
 
     logInfo("App initialized");
   }, []);
+
+  if (!fontsLoaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#fff",
+        }}
+      >
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <ErrorBoundary>

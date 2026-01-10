@@ -19,6 +19,7 @@ import { getAllRecords } from "../db/database";
 import { Record } from "../db/database";
 import { parseLocation, LocationData } from "../utils/location";
 import { formatDateKey } from "../utils/dateUtils";
+import { getFontFamily } from "../config/theme";
 
 type MapViewScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,

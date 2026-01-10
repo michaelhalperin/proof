@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { LayoutAnimation, Platform, UIManager } from "react-native";
 import { TabParamList } from "../types/navigation";
 import HomeScreen from "../screens/HomeScreen";
@@ -12,9 +12,13 @@ import StatisticsScreen from "../screens/StatisticsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { isStatisticsTabVisible, isMapTabVisible } from "../utils/preferences";
 import { tabPreferencesListener } from "../utils/tabPreferencesListener";
+import { getFontFamily } from "../config/theme";
 
 // Enable LayoutAnimation on Android
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -30,7 +34,7 @@ export default function TabNavigator() {
     try {
       const statsVisible = await isStatisticsTabVisible();
       const mapVisible = await isMapTabVisible();
-      
+
       // Only update if values actually changed
       if (statsVisible !== showStatisticsTab || mapVisible !== showMapTab) {
         // Configure smooth layout animation
@@ -100,6 +104,7 @@ export default function TabNavigator() {
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "500",
+          fontFamily: getFontFamily("medium"),
           marginTop: 0,
           marginBottom: 0,
         },
@@ -137,7 +142,8 @@ export default function TabNavigator() {
           ),
         }}
       />
-      {showMapTab && (
+      {/* Map and Statistics tabs hidden for now */}
+      {/* {showMapTab && (
         <Tab.Screen
           name="Map"
           component={MapViewScreen}
@@ -168,7 +174,7 @@ export default function TabNavigator() {
             ),
           }}
         />
-      )}
+      )} */}
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}

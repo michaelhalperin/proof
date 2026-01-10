@@ -9,6 +9,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { getFontFamily } from '../config/theme';
 
 interface FAQItem {
   question: string;
@@ -167,12 +168,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '700',
+    fontFamily: getFontFamily('bold'),
     color: '#000',
     marginTop: 16,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
+    fontFamily: getFontFamily('regular'),
     color: '#666',
     textAlign: 'center',
     lineHeight: 24,
@@ -196,6 +199,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: getFontFamily('semiBold'),
     color: '#000',
     marginRight: 12,
   },
@@ -207,6 +211,7 @@ const styles = StyleSheet.create({
   },
   faqAnswerText: {
     fontSize: 15,
+    fontFamily: getFontFamily('regular'),
     color: '#666',
     lineHeight: 22,
     marginTop: 16,
@@ -219,6 +224,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 15,
+    fontFamily: getFontFamily('regular'),
     color: '#666',
     lineHeight: 22,
     textAlign: 'center',

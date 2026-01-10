@@ -40,6 +40,7 @@ import {
 import { Record, Photo } from "../db/database";
 import { parseLocation } from "../utils/location";
 import * as FileSystem from "expo-file-system/legacy";
+import { getFontFamily } from "../config/theme";
 
 type DayDetailScreenRouteProp = RouteProp<RootStackParamList, "DayDetail">;
 type DayDetailScreenNavigationProp =
@@ -604,6 +605,7 @@ const styles = StyleSheet.create({
   createdLabel: {
     fontSize: 11,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     color: "#888888",
     textTransform: "uppercase",
     letterSpacing: 0.8,
@@ -612,6 +614,7 @@ const styles = StyleSheet.create({
   createdText: {
     fontSize: 15,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#1a1a1a",
     letterSpacing: -0.2,
     lineHeight: 22,
@@ -638,6 +641,7 @@ const styles = StyleSheet.create({
   integritySymbol: {
     fontSize: 18,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   integritySymbolVerified: {
     color: "#2e7d32",
@@ -648,6 +652,7 @@ const styles = StyleSheet.create({
   integrityLabel: {
     fontSize: 9,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
@@ -668,6 +673,7 @@ const styles = StyleSheet.create({
   noteText: {
     fontSize: 16,
     fontWeight: "400",
+    fontFamily: getFontFamily("regular"),
     color: "#1a1a1a",
     lineHeight: 24,
     letterSpacing: -0.1,
@@ -706,6 +712,7 @@ const styles = StyleSheet.create({
   hashToggleText: {
     fontSize: 13,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     color: "#666666",
     letterSpacing: 0,
   },
@@ -755,9 +762,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#666",
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   locationText: {
     fontSize: 14,
+    fontFamily: getFontFamily("regular"),
     color: "#666",
     flex: 1,
   },
@@ -803,6 +812,7 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     letterSpacing: 0.2,
   },
   deleteBtn: {
@@ -814,6 +824,7 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     letterSpacing: 0.2,
   },
   exportBtn: {
@@ -822,10 +833,12 @@ const styles = StyleSheet.create({
   },
   exportBtnText: {
     color: "#ffffff",
+    fontFamily: getFontFamily("semiBold"),
   },
   footerButtonText: {
     fontSize: 15,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
     color: "#000000",
     letterSpacing: 0,
   },

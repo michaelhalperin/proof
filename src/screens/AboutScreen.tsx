@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { getFontFamily } from "../config/theme";
 
 export default function AboutScreen() {
   const insets = useSafeAreaInsets();
@@ -132,6 +133,7 @@ const styles = StyleSheet.create({
   logoText: {
     fontSize: 48,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     letterSpacing: -1,
   },
@@ -140,11 +142,13 @@ const styles = StyleSheet.create({
     color: "#999",
     marginBottom: 8,
     fontWeight: "500",
+    fontFamily: getFontFamily("medium"),
   },
   tagline: {
     fontSize: 16,
     color: "#666",
     fontWeight: "400",
+    fontFamily: getFontFamily("regular"),
   },
   section: {
     marginBottom: 32,
@@ -152,6 +156,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
     color: "#000",
     marginBottom: 12,
     letterSpacing: -0.3,
@@ -160,6 +165,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     lineHeight: 24,
+    fontFamily: getFontFamily("regular"),
   },
   featureSection: {
     marginBottom: 32,
@@ -180,6 +186,7 @@ const styles = StyleSheet.create({
   featureTitle: {
     fontSize: 18,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     marginLeft: 12,
   },
@@ -187,6 +194,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: "#333",
     lineHeight: 22,
+    fontFamily: getFontFamily("regular"),
   },
   infoSection: {
     marginBottom: 32,
@@ -202,6 +210,7 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
     color: "#000",
     marginBottom: 8,
   },
@@ -210,6 +219,7 @@ const styles = StyleSheet.create({
     color: "#666",
     lineHeight: 20,
     marginBottom: 4,
+    fontFamily: getFontFamily("regular"),
   },
   footer: {
     marginTop: 20,
@@ -225,5 +235,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: "center",
     fontStyle: "italic",
+    fontFamily: getFontFamily("regular", true),
   },
 });
