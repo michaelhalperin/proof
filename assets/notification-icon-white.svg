@@ -1,0 +1,19 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- White notification icon on transparent background -->
+  <!-- Shield outline -->
+  <path d="M 96 28 L 37.5 52.5 L 37.5 97.5 C 37.5 131.25 65.625 161.25 96 172.5 C 126.375 161.25 154.5 131.25 154.5 97.5 L 154.5 52.5 Z" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="12"
+        stroke-linejoin="round"
+        stroke-linecap="round"/>
+  
+  <!-- Checkmark inside shield -->
+  <path d="M 75 97.5 L 88.5 111 L 117 82.5" 
+        fill="none" 
+        stroke="#ffffff" 
+        stroke-width="12" 
+        stroke-linecap="round" 
+        stroke-linejoin="round"/>
+</svg>
+
