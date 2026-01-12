@@ -921,6 +921,18 @@ export default function SettingsScreen() {
                 label="Privacy & Security"
                 onPress={() => navigation.navigate("Privacy")}
               />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="document-text-outline"
+                label="Terms of Service"
+                onPress={() => navigation.navigate("TermsOfService")}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="mail-outline"
+                label="Contact & Support"
+                onPress={() => navigation.navigate("Contact")}
+              />
               {user?.email === "michaelhalperin2@gmail.com" && (
                 <>
                   <View style={styles.divider} />

@@ -10,6 +10,7 @@ module.exports = {
     extra: {
       RESEND_API_KEY: process.env.RESEND_API_KEY,
       EMAIL_FROM: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      SUPPORT_URL: process.env.SUPPORT_URL || "https://proof.app/support",
       eas: {
         projectId: "0702398c-4dc2-4201-a11c-3bf479012380"
       }

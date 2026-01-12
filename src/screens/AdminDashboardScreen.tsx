@@ -20,19 +20,14 @@ import {
   getAllRecordsWithDetails,
   getAllUsers,
   executeQuery,
-  getTableSchema,
   DatabaseInfo,
   RecordDetail,
 } from "../utils/adminUtils";
 import { User } from "../db/auth";
 import { useAuth } from "../context/AuthContext";
 import { formatDateKey, formatTimestamp } from "../utils/dateUtils";
-import * as FileSystem from "expo-file-system/legacy";
-import * as Sharing from "expo-sharing";
-import { sharePDF } from "../utils/shareUtils";
-import { getFontFamily } from "../config/theme";
 
-const ADMIN_USER_ID = "4051afae-cd51-4518-b5e6-d1463453743b";
+const ADMIN_USER_EMAIL = "michaelhalperin2@gmail.com";
 
 type AdminDashboardScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -65,7 +60,7 @@ export default function AdminDashboardScreen() {
 
   // Check admin access on mount
   useEffect(() => {
-    if (!user || user.id !== ADMIN_USER_ID) {
+    if (!user || user.email !== ADMIN_USER_EMAIL) {
       Alert.alert(
         "Access Denied",
         "You do not have permission to access the Admin Dashboard.",
@@ -92,7 +87,7 @@ export default function AdminDashboardScreen() {
 
   const loadData = async () => {
     // Only load data if user is admin
-    if (!user || user.id !== ADMIN_USER_ID) {
+    if (!user || user.email !== ADMIN_USER_EMAIL) {
       return;
     }
 
@@ -477,7 +472,7 @@ export default function AdminDashboardScreen() {
   };
 
   // Don't render dashboard if user is not admin
-  if (!user || user.id !== ADMIN_USER_ID) {
+  if (!user || user.email !== ADMIN_USER_EMAIL) {
     return (
       <View
         style={[

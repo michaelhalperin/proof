@@ -2,8 +2,8 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect } from "@react-navigation/native";
-import { LayoutAnimation, Platform, UIManager } from "react-native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
+import { LayoutAnimation, Platform, UIManager, Animated, StyleSheet } from "react-native";
 import { TabParamList } from "../types/navigation";
 import HomeScreen from "../screens/HomeScreen";
 import HistoryScreen from "../screens/HistoryScreen";
@@ -21,6 +21,81 @@ if (
 ) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
+
+// Animated wrapper component for smooth tab transitions
+function AnimatedScreenWrapper({ children }: { children: React.ReactNode }) {
+  const isFocused = useIsFocused();
+  const fadeAnim = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+  const slideAnim = useRef(new Animated.Value(isFocused ? 0 : 20)).current;
+  const scaleAnim = useRef(new Animated.Value(isFocused ? 1 : 0.95)).current;
+
+  useEffect(() => {
+    if (isFocused) {
+      // Animate in: fade, slide up, and scale up
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          tension: 65,
+          friction: 11,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          tension: 65,
+          friction: 11,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Animate out: fade, slide down, and scale down
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0.7,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: -10,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 0.97,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isFocused, fadeAnim, slideAnim, scaleAnim]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.animatedContainer,
+        {
+          opacity: fadeAnim,
+          transform: [
+            { translateY: slideAnim },
+            { scale: scaleAnim },
+          ],
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
+  );
+}
+
+const styles = StyleSheet.create({
+  animatedContainer: {
+    flex: 1,
+  },
+});
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -116,7 +191,6 @@ export default function TabNavigator() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
         options={{
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size, focused }) => (
@@ -127,10 +201,15 @@ export default function TabNavigator() {
             />
           ),
         }}
-      />
+      >
+        {() => (
+          <AnimatedScreenWrapper>
+            <HomeScreen />
+          </AnimatedScreenWrapper>
+        )}
+      </Tab.Screen>
       <Tab.Screen
         name="History"
-        component={HistoryScreen}
         options={{
           tabBarLabel: "History",
           tabBarIcon: ({ color, size, focused }) => (
@@ -141,7 +220,13 @@ export default function TabNavigator() {
             />
           ),
         }}
-      />
+      >
+        {() => (
+          <AnimatedScreenWrapper>
+            <HistoryScreen />
+          </AnimatedScreenWrapper>
+        )}
+      </Tab.Screen>
       {/* Map and Statistics tabs hidden for now */}
       {/* {showMapTab && (
         <Tab.Screen
@@ -177,7 +262,6 @@ export default function TabNavigator() {
       )} */}
       <Tab.Screen
         name="Settings"
-        component={SettingsScreen}
         listeners={{
           blur: () => {
             // Reload preferences when leaving Settings (user may have toggled tabs)
@@ -196,7 +280,13 @@ export default function TabNavigator() {
             />
           ),
         }}
-      />
+      >
+        {() => (
+          <AnimatedScreenWrapper>
+            <SettingsScreen />
+          </AnimatedScreenWrapper>
+        )}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 }

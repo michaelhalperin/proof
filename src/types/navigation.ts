@@ -17,6 +17,8 @@ export type RootStackParamList = {
   Settings: undefined;
   About: undefined;
   Privacy: undefined;
+  TermsOfService: undefined;
+  Contact: undefined;
   ChangePassword: undefined;
   AdminDashboard: undefined;
   Help: undefined;

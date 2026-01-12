@@ -27,6 +27,8 @@ import LogTodayScreen from "./src/screens/LogTodayScreen";
 import DayDetailScreen from "./src/screens/DayDetailScreen";
 import AboutScreen from "./src/screens/AboutScreen";
 import PrivacyScreen from "./src/screens/PrivacyScreen";
+import TermsOfServiceScreen from "./src/screens/TermsOfServiceScreen";
+import ContactScreen from "./src/screens/ContactScreen";
 import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
 import AdminDashboardScreen from "./src/screens/AdminDashboardScreen";
 import HelpScreen from "./src/screens/HelpScreen";
@@ -140,6 +142,16 @@ function AppNavigator() {
             <Stack.Screen
               name="Privacy"
               component={PrivacyScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="TermsOfService"
+              component={TermsOfServiceScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Contact"
+              component={ContactScreen}
               options={{ headerShown: false }}
             />
             <Stack.Screen
