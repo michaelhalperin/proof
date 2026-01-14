@@ -33,6 +33,7 @@ import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
 import AdminDashboardScreen from "./src/screens/AdminDashboardScreen";
 import HelpScreen from "./src/screens/HelpScreen";
 import OnboardingScreen, { hasCompletedOnboarding } from "./src/screens/OnboardingScreen";
+import PromptsSettingsScreen from "./src/screens/PromptsSettingsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -167,6 +168,11 @@ function AppNavigator() {
             <Stack.Screen
               name="Help"
               component={HelpScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="PromptsSettings"
+              component={PromptsSettingsScreen}
               options={{ headerShown: false }}
             />
           </>

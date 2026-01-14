@@ -23,6 +23,7 @@ export type RootStackParamList = {
   AdminDashboard: undefined;
   Help: undefined;
   Onboarding: undefined;
+  PromptsSettings: undefined;
 };
 
 export type TabParamList = {

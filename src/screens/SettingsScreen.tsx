@@ -762,6 +762,18 @@ export default function SettingsScreen() {
             </View>
           </View>
 
+          {/* Journal Prompts Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Journal Prompts</Text>
+            <View style={styles.card}>
+              <SettingItem
+                icon="bulb-outline"
+                label="Manage Prompts"
+                onPress={() => navigation.navigate("PromptsSettings")}
+              />
+            </View>
+          </View>
+
           {/* Reminders Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Reminders</Text>

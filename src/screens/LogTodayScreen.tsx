@@ -43,6 +43,7 @@ import {
 import * as Crypto from "expo-crypto";
 import * as FileSystem from "expo-file-system/legacy";
 import { getFontFamily } from "../config/theme";
+import { getRandomPrompt, arePromptsEnabled } from "../utils/prompts";
 
 type LogTodayScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -86,6 +87,7 @@ export default function LogTodayScreen() {
   const [locationLoading, setLocationLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [journalPrompt, setJournalPrompt] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useFocusEffect(
@@ -94,6 +96,17 @@ export default function LogTodayScreen() {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
 
       const loadExistingData = async () => {
+        // Load journal prompt if enabled and not editing
+        if (!isEditMode) {
+          const enabled = await arePromptsEnabled();
+          if (enabled) {
+            const prompt = await getRandomPrompt();
+            if (prompt) {
+              setJournalPrompt(prompt);
+            }
+          }
+        }
+
         if (isEditMode) {
           // Load existing record for editing
           setLoading(true);
@@ -512,13 +525,32 @@ export default function LogTodayScreen() {
       style={[styles.container, { paddingTop: insets.top + 20 }]}
     >
       <View style={styles.content}>
+        {/* Journal Prompt */}
+        {journalPrompt && !isEditMode && (
+          <View style={styles.promptCard}>
+            <View style={styles.promptHeader}>
+              <Ionicons name="bulb-outline" size={20} color="#666" />
+              <Text style={styles.promptLabel}>Daily Reflection</Text>
+            </View>
+            <Text style={styles.promptText}>{journalPrompt}</Text>
+            <TouchableOpacity
+              style={styles.promptDismiss}
+              onPress={() => setJournalPrompt(null)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="close" size={18} color="#999" />
+            </TouchableOpacity>
+          </View>
+        )}
+
         <Text style={styles.label}>Note (optional)</Text>
         <TextInput
           style={styles.textInput}
           multiline
           numberOfLines={6}
           maxLength={500}
-          placeholder="Enter your note here..."
+          placeholder={journalPrompt || "Enter your note here..."}
+          placeholderTextColor="#999"
           value={note}
           onChangeText={setNote}
           textAlignVertical="top"
@@ -722,6 +754,42 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
+  },
+  promptCard: {
+    backgroundColor: "#fff9e6",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#ffe5a3",
+    position: "relative",
+  },
+  promptHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+  },
+  promptLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
+    color: "#666",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  promptText: {
+    fontSize: 16,
+    fontFamily: getFontFamily("regular"),
+    color: "#333",
+    lineHeight: 22,
+    fontStyle: "italic",
+  },
+  promptDismiss: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    padding: 4,
   },
   label: {
     fontSize: 16,

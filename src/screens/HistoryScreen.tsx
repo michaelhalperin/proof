@@ -23,8 +23,9 @@ import {
   getLastNDays,
   formatDateKey,
 } from "../utils/dateUtils";
-import { getAllRecords } from "../db/database";
+import { getAllRecords, getRecord, getPhotos, Record, Photo } from "../db/database";
 import { getFontFamily } from "../config/theme";
+import { Image } from "expo-image";
 
 type HistoryScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, "History">,
@@ -34,6 +35,11 @@ type HistoryScreenNavigationProp = CompositeNavigationProp<
 interface DayStatus {
   dateKey: string;
   isLogged: boolean;
+  record?: Record;
+  photoCount: number;
+  photos?: Photo[];
+  hasNote: boolean;
+  pinned?: boolean;
 }
 
 type ViewMode = "timeline" | "calendar";
@@ -67,14 +73,51 @@ export default function HistoryScreen() {
   const loadHistory = async () => {
     try {
       const records = await getAllRecords();
+      const recordsMap = new Map<string, Record>();
+      records.forEach((r) => recordsMap.set(r.dateKey, r));
+      
       const loggedDateKeys = new Set(records.map((r) => r.dateKey));
       setLoggedDateKeysSet(loggedDateKeys);
       const last30Days = getLastNDays(30);
 
-      const dayStatuses: DayStatus[] = last30Days.map((dateKey) => ({
-        dateKey,
-        isLogged: loggedDateKeys.has(dateKey),
-      }));
+      // Load photo counts for logged days
+      const dayStatuses: DayStatus[] = await Promise.all(
+        last30Days.map(async (dateKey) => {
+          const isLogged = loggedDateKeys.has(dateKey);
+          let photoCount = 0;
+          let hasNote = false;
+          let record: Record | undefined;
+          let pinned = false;
+
+          if (isLogged) {
+            record = recordsMap.get(dateKey);
+            pinned = record?.pinned === true || record?.pinned === 1;
+            hasNote = !!(record?.note && record.note.trim().length > 0);
+            const photos = await getPhotos(dateKey);
+            photoCount = photos.length;
+            
+            return {
+              dateKey,
+              isLogged,
+              record,
+              photoCount,
+              photos: photos.slice(0, 3), // Store first 3 photos for thumbnails
+              hasNote,
+              pinned,
+            };
+          }
+
+          return {
+            dateKey,
+            isLogged,
+            record,
+            photoCount,
+            photos: [],
+            hasNote,
+            pinned,
+          };
+        })
+      );
 
       // Reverse to show today first (newest first)
       setDays(dayStatuses.reverse());
@@ -138,23 +181,82 @@ export default function HistoryScreen() {
     const isToday = item.dateKey === todayDateKey;
     const isClickable = item.isLogged;
 
+    // Calculate activity density (more photos/notes = more visual)
+    const densityScore = (item.photoCount > 0 ? 1 : 0) + (item.hasNote ? 1 : 0) + (item.photoCount > 2 ? 1 : 0);
+    const isHighActivity = densityScore >= 2;
+
     return (
       <TouchableOpacity
         style={[
-          styles.dayRow,
-          !isClickable && styles.dayRowDisabled,
-          isToday && styles.dayRowToday,
+          styles.dayCard,
+          !isClickable && styles.dayCardDisabled,
+          isToday && styles.dayCardToday,
+          isHighActivity && styles.dayCardHighActivity,
+          item.pinned && styles.dayCardPinned,
         ]}
         onPress={() => handleDayPress(item.dateKey, item.isLogged)}
         disabled={!isClickable}
+        activeOpacity={0.7}
       >
-        <Text style={[styles.dateText, isToday && styles.dateTextToday]}>
-          {formatDateKey(item.dateKey)}
-          {isToday && " (Today)"}
-        </Text>
-        <Text style={styles.statusText}>
-          {item.isLogged ? "✓ Logged" : "○ Missing"}
-        </Text>
+        <View style={styles.dayCardHeader}>
+          <View style={styles.dayCardLeft}>
+            <Text style={[styles.dateText, isToday && styles.dateTextToday]}>
+              {formatDateKey(item.dateKey)}
+              {isToday && " (Today)"}
+            </Text>
+            <View style={styles.dayCardMeta}>
+              {item.isLogged ? (
+                <>
+                  {item.pinned && (
+                    <Ionicons name="star" size={14} color="#FFD700" style={styles.pinIcon} />
+                  )}
+                  {item.photoCount > 0 && (
+                    <View style={styles.metaBadge}>
+                      <Ionicons name="images" size={12} color="#666" />
+                      <Text style={styles.metaText}>{item.photoCount}</Text>
+                    </View>
+                  )}
+                  {item.hasNote && (
+                    <View style={styles.metaBadge}>
+                      <Ionicons name="document-text" size={12} color="#666" />
+                    </View>
+                  )}
+                </>
+              ) : (
+                <Text style={styles.statusText}>○ Missing</Text>
+              )}
+            </View>
+          </View>
+          {item.isLogged && (
+            <View style={styles.statusIndicator}>
+              <View style={[styles.statusDot, isHighActivity && styles.statusDotActive]} />
+            </View>
+          )}
+        </View>
+
+        {/* Photo Thumbnails */}
+        {item.isLogged && item.photoCount > 0 && item.photos && (
+          <View style={styles.photoThumbnails}>
+            {item.photos.slice(0, 3).map((photo, index) => {
+              const imageUri = photo.fileUri.startsWith("file://") 
+                ? photo.fileUri 
+                : `file://${photo.fileUri}`;
+              return (
+                <Image
+                  key={photo.id}
+                  source={{ uri: imageUri }}
+                  style={styles.photoThumbnail}
+                  contentFit="cover"
+                />
+              );
+            })}
+            {item.photoCount > 3 && (
+              <View style={styles.photoThumbnailMore}>
+                <Text style={styles.photoThumbnailMoreText}>+{item.photoCount - 3}</Text>
+              </View>
+            )}
+          </View>
+        )}
       </TouchableOpacity>
     );
   };
@@ -353,33 +455,128 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 20,
   },
-  dayRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+  dayCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  dayRowDisabled: {
+  dayCardDisabled: {
     opacity: 0.5,
   },
-  dayRowToday: {
+  dayCardToday: {
+    borderWidth: 2,
+    borderColor: "#000",
+    backgroundColor: "#fafafa",
+  },
+  dayCardHighActivity: {
+    borderWidth: 2,
+    borderColor: "#000",
     backgroundColor: "#f9f9f9",
+  },
+  dayCardPinned: {
+    borderColor: "#FFD700",
+    borderWidth: 2,
+  },
+  dayCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  dayCardLeft: {
+    flex: 1,
   },
   dateText: {
     fontSize: 16,
     fontFamily: getFontFamily("regular"),
     color: "#000",
+    marginBottom: 6,
   },
   dateTextToday: {
-    fontWeight: "600",
-    fontFamily: getFontFamily("semiBold"),
+    fontWeight: "700",
+    fontFamily: getFontFamily("bold"),
+  },
+  dayCardMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  pinIcon: {
+    marginRight: 4,
+  },
+  metaBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 4,
+  },
+  metaText: {
+    fontSize: 12,
+    color: "#666",
+    fontFamily: getFontFamily("regular"),
   },
   statusText: {
-    fontSize: 16,
-    color: "#666",
+    fontSize: 14,
+    color: "#999",
+  },
+  statusIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#e0e0e0",
+    marginTop: 4,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#ccc",
+  },
+  statusDotActive: {
+    backgroundColor: "#000",
+  },
+  photoThumbnails: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+  },
+  photoThumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: "#f5f5f5",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    overflow: "hidden",
+  },
+  photoThumbnailMore: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    backgroundColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  photoThumbnailMoreText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   emptyContainer: {
     padding: 40,

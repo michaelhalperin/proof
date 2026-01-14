@@ -8,6 +8,7 @@ export interface Record {
   algo: string;
   tags?: string; // JSON array of tags
   location?: string; // JSON object with lat, lng, address
+  pinned?: boolean | number; // SQLite stores as INTEGER (0 or 1)
 }
 
 export interface Photo {
@@ -37,7 +38,8 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
       recordHash TEXT NOT NULL,
       algo TEXT NOT NULL,
       tags TEXT,
-      location TEXT
+      location TEXT,
+      pinned INTEGER DEFAULT 0
     );
   `);
 
@@ -53,6 +55,14 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
   try {
     await db.execAsync(`
       ALTER TABLE records ADD COLUMN location TEXT;
+    `);
+  } catch (e) {
+    // Column may already exist, ignore
+  }
+
+  try {
+    await db.execAsync(`
+      ALTER TABLE records ADD COLUMN pinned INTEGER DEFAULT 0;
     `);
   } catch (e) {
     // Column may already exist, ignore
@@ -127,7 +137,7 @@ export async function insertRecord(
   const database = await initDatabase();
 
   await database.runAsync(
-    "INSERT INTO records (dateKey, createdAt, note, recordHash, algo, tags, location) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO records (dateKey, createdAt, note, recordHash, algo, tags, location, pinned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
     [
       record.dateKey,
       record.createdAt,
@@ -136,6 +146,7 @@ export async function insertRecord(
       record.algo,
       record.tags || null,
       record.location || null,
+      record.pinned ? 1 : 0,
     ]
   );
 
@@ -173,9 +184,15 @@ export async function updateRecord(
 ): Promise<void> {
   const database = await initDatabase();
 
+  // Get existing pinned status if not provided
+  const existingRecord = await getRecord(record.dateKey);
+  const pinned = record.pinned !== undefined 
+    ? (record.pinned ? 1 : 0) 
+    : (existingRecord?.pinned ? 1 : 0);
+
   // Update record
   await database.runAsync(
-    "UPDATE records SET createdAt = ?, note = ?, recordHash = ?, algo = ?, tags = ?, location = ? WHERE dateKey = ?",
+    "UPDATE records SET createdAt = ?, note = ?, recordHash = ?, algo = ?, tags = ?, location = ?, pinned = ? WHERE dateKey = ?",
     [
       record.createdAt,
       record.note,
@@ -183,6 +200,7 @@ export async function updateRecord(
       record.algo,
       record.tags || null,
       record.location || null,
+      pinned,
       record.dateKey,
     ]
   );
@@ -238,4 +256,36 @@ export async function deleteAllRecords(): Promise<string[]> {
   await database.runAsync("DELETE FROM records");
 
   return photoUris;
+}
+
+/**
+ * Toggle pinned status of a record
+ */
+export async function togglePinnedRecord(dateKey: string): Promise<boolean> {
+  const database = await initDatabase();
+  const record = await getRecord(dateKey);
+  
+  if (!record) {
+    throw new Error("Record not found");
+  }
+
+  const newPinnedStatus = !(record.pinned === true || record.pinned === 1);
+  
+  await database.runAsync(
+    "UPDATE records SET pinned = ? WHERE dateKey = ?",
+    [newPinnedStatus ? 1 : 0, dateKey]
+  );
+
+  return newPinnedStatus;
+}
+
+/**
+ * Get all pinned records
+ */
+export async function getPinnedRecords(): Promise<Record[]> {
+  const database = await initDatabase();
+  const result = await database.getAllAsync<Record>(
+    "SELECT * FROM records WHERE pinned = 1 ORDER BY dateKey DESC"
+  );
+  return result || [];
 }

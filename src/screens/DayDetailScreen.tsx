@@ -37,10 +37,11 @@ import {
   shareText,
   sharePDF,
 } from "../utils/shareUtils";
-import { Record, Photo } from "../db/database";
+import { Record, Photo, togglePinnedRecord } from "../db/database";
 import { parseLocation } from "../utils/location";
 import * as FileSystem from "expo-file-system/legacy";
 import { getFontFamily } from "../config/theme";
+import PhotoGalleryViewer from "../components/PhotoGalleryViewer";
 
 type DayDetailScreenRouteProp = RouteProp<RootStackParamList, "DayDetail">;
 type DayDetailScreenNavigationProp =
@@ -62,8 +63,9 @@ export default function DayDetailScreen() {
   const [deleting, setDeleting] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const [showHash, setShowHash] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [pinned, setPinned] = useState(false);
   const isToday = dateKey === getTodayDateKey();
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export default function DayDetailScreen() {
 
       setRecord(loadedRecord);
       setPhotos(verifiedPhotos);
+      setPinned(loadedRecord.pinned === true || loadedRecord.pinned === 1);
 
       // Verify integrity
       const canonicalPhotos = loadedPhotos.map((p) => ({
@@ -307,8 +310,20 @@ export default function DayDetailScreen() {
     return fileUri;
   };
 
-  const handlePhotoPress = (photoUri: string) => {
-    setSelectedPhoto(photoUri);
+  const handlePhotoPress = (photoIndex: number) => {
+    setSelectedPhotoIndex(photoIndex);
+  };
+
+  const handleTogglePin = async () => {
+    try {
+      const newPinnedStatus = await togglePinnedRecord(dateKey);
+      setPinned(newPinnedStatus);
+      // Reload record to reflect changes
+      await loadRecord();
+    } catch (error) {
+      console.error("Error toggling pin:", error);
+      Alert.alert("Error", "Failed to update pin status.");
+    }
   };
 
   return (
@@ -363,6 +378,32 @@ export default function DayDetailScreen() {
             >
               {integrityVerified === true ? "Verified" : "Failed"}
             </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Pin / Favorite Section */}
+        <View style={styles.pinSection}>
+          <TouchableOpacity
+            style={styles.pinRow}
+            onPress={handleTogglePin}
+            activeOpacity={0.7}
+          >
+            <View style={styles.pinIconContainer}>
+              <Ionicons
+                name={pinned ? "star" : "star-outline"}
+                size={20}
+                color={pinned ? "#FFD700" : "#666"}
+              />
+            </View>
+            <View style={styles.pinTextContainer}>
+              <Text style={styles.pinLabel}>
+                {pinned ? "Marked as important" : "Mark this day as important"}
+              </Text>
+              <Text style={styles.pinDescription}>
+                Star this log to find it quickly later in your history and on
+                the home screen.
+              </Text>
+            </View>
           </TouchableOpacity>
         </View>
 
@@ -428,7 +469,7 @@ export default function DayDetailScreen() {
                   <TouchableOpacity
                     key={photo.id}
                     style={styles.photoWrapper}
-                    onPress={() => handlePhotoPress(imageUri)}
+                    onPress={() => handlePhotoPress(photos.indexOf(photo))}
                     onLongPress={async () => {
                       Alert.alert(
                         "Photo Options",
@@ -436,7 +477,7 @@ export default function DayDetailScreen() {
                         [
                           {
                             text: "View Full Size",
-                            onPress: () => handlePhotoPress(imageUri),
+                            onPress: () => handlePhotoPress(photos.indexOf(photo)),
                           },
                           {
                             text: "Share Photo",
@@ -547,28 +588,14 @@ export default function DayDetailScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Full Screen Image Modal */}
-      <Modal
-        visible={selectedPhoto !== null}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setSelectedPhoto(null)}
-      >
-        <Pressable
-          style={styles.modalOverlay}
-          onPress={() => setSelectedPhoto(null)}
-        >
-          <View style={styles.modalContent}>
-            {selectedPhoto && (
-              <Image
-                source={{ uri: selectedPhoto }}
-                style={styles.fullImage}
-                contentFit="contain"
-              />
-            )}
-          </View>
-        </Pressable>
-      </Modal>
+      {/* Photo Gallery Viewer */}
+      <PhotoGalleryViewer
+        visible={selectedPhotoIndex !== null}
+        photos={photos}
+        initialIndex={selectedPhotoIndex || 0}
+        recordCreatedAt={record.createdAt}
+        onClose={() => setSelectedPhotoIndex(null)}
+      />
     </View>
   );
 }
@@ -590,7 +617,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 20,
     padding: 18,
     paddingVertical: 16,
     backgroundColor: "#f8f9fa",
@@ -618,6 +645,43 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
     letterSpacing: -0.2,
     lineHeight: 22,
+  },
+  pinSection: {
+    marginBottom: 24,
+  },
+  pinRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 14,
+    borderRadius: 12,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
+  },
+  pinIconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#f7f7f7",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  pinTextContainer: {
+    flex: 1,
+  },
+  pinLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
+    color: "#000",
+    marginBottom: 2,
+  },
+  pinDescription: {
+    fontSize: 12,
+    fontFamily: getFontFamily("regular"),
+    color: "#666",
+    lineHeight: 18,
   },
   integrityContainer: {
     alignItems: "center",

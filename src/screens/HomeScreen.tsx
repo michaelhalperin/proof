@@ -23,6 +23,7 @@ import {
   getAllRecords,
   getRecord,
   getPhotos,
+  getPinnedRecords,
 } from "../db/database";
 import { Record } from "../db/database";
 import { getFontFamily } from "../config/theme";
@@ -41,6 +42,7 @@ export default function HomeScreen() {
   const [todayRecord, setTodayRecord] = useState<Record | null>(null);
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [photoCount, setPhotoCount] = useState<number>(0);
+  const [pinnedRecords, setPinnedRecords] = useState<Record[]>([]);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const loadData = async () => {
@@ -57,6 +59,10 @@ export default function HomeScreen() {
 
       const allRecords = await getAllRecords();
       setTotalRecords(allRecords.length);
+      
+      // Load pinned records
+      const pinned = await getPinnedRecords();
+      setPinnedRecords(pinned.slice(0, 3)); // Show max 3 pinned
     } catch (error) {
       // Log error but don't show alert - empty state is acceptable
       setIsLogged(false);
@@ -184,6 +190,49 @@ export default function HomeScreen() {
             <Text style={styles.statLabel}>Today</Text>
           </View>
         </View>
+
+        {/* Starred Records */}
+        {pinnedRecords.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="star" size={20} color="#FFD700" />
+              <Text style={styles.sectionTitle}>Starred Records</Text>
+            </View>
+            <View style={styles.starredContainer}>
+              {pinnedRecords.map((record) => (
+                <TouchableOpacity
+                  key={record.dateKey}
+                  style={styles.starredCard}
+                  onPress={() =>
+                    navigation.navigate("DayDetail", { dateKey: record.dateKey })
+                  }
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.starredCardHeader}>
+                    <Text style={styles.starredDate}>
+                      {formatDateKey(record.dateKey)}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={18} color="#999" />
+                  </View>
+                  {record.note && record.note.trim() && (
+                    <Text style={styles.starredNote} numberOfLines={2}>
+                      {record.note}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+            {pinnedRecords.length > 0 && (
+              <TouchableOpacity
+                style={styles.viewAllButton}
+                onPress={() => navigation.navigate("History")}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.viewAllText}>View All in History</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -344,5 +393,59 @@ const styles = StyleSheet.create({
     fontFamily: getFontFamily("medium"),
     textTransform: "uppercase",
     letterSpacing: 0.5,
+  },
+  section: {
+    marginTop: 32,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
+    color: "#000",
+  },
+  starredContainer: {
+    gap: 12,
+  },
+  starredCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
+  },
+  starredCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  starredDate: {
+    fontSize: 15,
+    fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
+    color: "#000",
+  },
+  starredNote: {
+    fontSize: 14,
+    fontFamily: getFontFamily("regular"),
+    color: "#666",
+    lineHeight: 20,
+  },
+  viewAllButton: {
+    marginTop: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+  viewAllText: {
+    fontSize: 14,
+    fontFamily: getFontFamily("medium"),
+    color: "#666",
+    textDecorationLine: "underline",
   },
 });
