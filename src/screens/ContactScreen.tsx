@@ -7,53 +7,62 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Linking,
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getFontFamily } from "../config/theme";
-import Constants from "expo-constants";
-
-const SUPPORT_EMAIL = "support@proof.app";
-const SUPPORT_URL = Constants.expoConfig?.extra?.SUPPORT_URL || "https://proof.app/support";
+import { SUPPORT_EMAIL } from "../config/env";
+import { useAuth } from "../context/AuthContext";
+import { sendSupportEmail } from "../utils/emailService";
 
 export default function ContactScreen() {
   const insets = useSafeAreaInsets();
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const { user } = useAuth();
 
-  const handleEmailPress = () => {
-    const emailUrl = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject || "Proof Support Request")}&body=${encodeURIComponent(message || "")}`;
-    Linking.canOpenURL(emailUrl)
-      .then((supported) => {
-        if (supported) {
-          return Linking.openURL(emailUrl);
-        } else {
-          Alert.alert(
-            "Email Not Available",
-            "Please email us directly at " + SUPPORT_EMAIL
-          );
-        }
-      })
-      .catch((err) => {
-        Alert.alert("Error", "Failed to open email client");
-        console.error("Error opening email:", err);
-      });
-  };
+  const handleEmailPress = async () => {
+    if (!subject.trim() && !message.trim()) {
+      Alert.alert("Missing Information", "Please enter a subject or message.");
+      return;
+    }
 
-  const handleSupportWebsitePress = () => {
-    Linking.canOpenURL(SUPPORT_URL)
-      .then((supported) => {
-        if (supported) {
-          return Linking.openURL(SUPPORT_URL);
-        } else {
-          Alert.alert("Error", "Unable to open support website");
-        }
-      })
-      .catch((err) => {
-        Alert.alert("Error", "Failed to open support website");
-        console.error("Error opening URL:", err);
-      });
+    try {
+      setSending(true);
+      await sendSupportEmail(subject, message, user?.email);
+      
+      // Success - email was sent (either to SUPPORT_EMAIL or user's email as fallback)
+      // The email itself will contain a note if it was sent to user's email
+      Alert.alert(
+        "Message Sent",
+        "Your support request has been sent. Check your email inbox for confirmation."
+      );
+      setSubject("");
+      setMessage("");
+    } catch (error: any) {
+      console.error("Error sending support email:", error);
+      const errorMessage = error?.message || "";
+      
+      // Show helpful message for Resend limitation
+      if (
+        errorMessage.includes("only send testing emails") ||
+        errorMessage.includes("verify a domain")
+      ) {
+        Alert.alert(
+          "Email Service Limitation",
+          "Resend's free tier only allows sending to your verified email address. Your support request has been sent to your email inbox instead. To send directly to support, verify a domain in Resend."
+        );
+      } else {
+        Alert.alert(
+          "Error",
+          errorMessage || "Failed to send support message. Please try again."
+        );
+      }
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleClear = () => {
@@ -123,50 +132,26 @@ export default function ContactScreen() {
                 <Text style={styles.clearButtonText}>Clear</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.button, styles.sendButton]}
+                style={[
+                  styles.button,
+                  styles.sendButton,
+                  sending && styles.sendButtonDisabled,
+                ]}
                 onPress={handleEmailPress}
                 activeOpacity={0.7}
+                disabled={sending}
               >
-                <Ionicons name="send" size={18} color="#fff" />
-                <Text style={styles.sendButtonText}>Send Email</Text>
+                {sending ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <>
+                    <Ionicons name="send" size={18} color="#fff" />
+                    <Text style={styles.sendButtonText}>Send Email</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
 
-            <View style={styles.emailDisplay}>
-              <Text style={styles.emailLabel}>Direct Email:</Text>
-              <TouchableOpacity
-                onPress={() => {
-                  const emailUrl = `mailto:${SUPPORT_EMAIL}`;
-                  Linking.openURL(emailUrl).catch(() => {
-                    Alert.alert("Error", "Unable to open email client");
-                  });
-                }}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.emailAddress}>{SUPPORT_EMAIL}</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* Support Website Section */}
-        <View style={styles.section}>
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Ionicons name="globe-outline" size={24} color="#000" />
-              <Text style={styles.cardTitle}>Support Website</Text>
-            </View>
-            <Text style={styles.cardDescription}>
-              Visit our support website for documentation, FAQs, and additional resources.
-            </Text>
-            <TouchableOpacity
-              style={styles.linkButton}
-              onPress={handleSupportWebsitePress}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.linkButtonText}>Visit Support Website</Text>
-              <Ionicons name="chevron-forward" size={20} color="#007AFF" />
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -324,6 +309,9 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     backgroundColor: "#000",
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
   },
   sendButtonText: {
     fontSize: 15,

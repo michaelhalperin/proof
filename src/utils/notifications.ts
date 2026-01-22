@@ -1,5 +1,8 @@
 import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store";
+import { getTodayDateKey } from "../utils/dateUtils";
+import { recordExists } from "../db/database";
+import { getRandomPrompt } from "./prompts";
 
 const REMINDER_ENABLED_KEY = "reminderEnabled";
 const REMINDER_TIME_KEY = "reminderTime";
@@ -91,17 +94,27 @@ export async function scheduleReminder(): Promise<void> {
   const time = await getReminderTime();
   const [hours, minutes] = time.split(":").map(Number);
 
+  // Choose prompt text if available
+  const prompt = await getRandomPrompt();
+  const defaultBody = "Don't forget to log today's proof.";
+  const body =
+    prompt && prompt.trim().length > 0
+      ? `No log yet today? ${prompt}`
+      : defaultBody;
+
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "Proof",
-      body: "Don't forget to log today's proof!",
+      body,
       sound: true,
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour: hours,
       minute: minutes,
-    },
+      // Only show if today has no log yet
+      repeats: true,
+    } as Notifications.DailyTriggerInput,
   });
 }
 

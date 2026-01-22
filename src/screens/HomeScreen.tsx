@@ -17,7 +17,8 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList, TabParamList } from "../types/navigation";
-import { getTodayDateKey, formatDateKey } from "../utils/dateUtils";
+import { getTodayDateKey, formatDateKey, getLastNDays } from "../utils/dateUtils";
+import { getRandomPrompt } from "../utils/prompts";
 import {
   recordExists,
   getAllRecords,
@@ -33,6 +34,11 @@ type HomeScreenNavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<RootStackParamList>
 >;
 
+interface WeekDayStatus {
+  dateKey: string;
+  isLogged: boolean;
+}
+
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const insets = useSafeAreaInsets();
@@ -43,6 +49,8 @@ export default function HomeScreen() {
   const [totalRecords, setTotalRecords] = useState<number>(0);
   const [photoCount, setPhotoCount] = useState<number>(0);
   const [pinnedRecords, setPinnedRecords] = useState<Record[]>([]);
+  const [weekStatus, setWeekStatus] = useState<WeekDayStatus[]>([]);
+  const [homePrompt, setHomePrompt] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const loadData = async () => {
@@ -59,10 +67,29 @@ export default function HomeScreen() {
 
       const allRecords = await getAllRecords();
       setTotalRecords(allRecords.length);
+
+      // Build set of logged date keys
+      const loggedSet = new Set(allRecords.map((r) => r.dateKey));
       
       // Load pinned records
       const pinned = await getPinnedRecords();
       setPinnedRecords(pinned.slice(0, 3)); // Show max 3 pinned
+
+      // Prepare last 7 days strip (including today)
+      const last7 = getLastNDays(7);
+      const week: WeekDayStatus[] = last7.map((dateKey) => ({
+        dateKey,
+        isLogged: loggedSet.has(dateKey),
+      }));
+      setWeekStatus(week);
+
+      // Load a prompt for Home if nothing logged today
+      if (!exists) {
+        const prompt = await getRandomPrompt();
+        setHomePrompt(prompt);
+      } else {
+        setHomePrompt(null);
+      }
     } catch (error) {
       // Log error but don't show alert - empty state is acceptable
       setIsLogged(false);
@@ -110,7 +137,7 @@ export default function HomeScreen() {
           <Text style={styles.dateText}>{formatDateKey(todayDateKey)}</Text>
         </View>
 
-        {/* Today's Status Card */}
+        {/* Today's Status Card with Suggested Action */}
         <View style={styles.card}>
           <View style={styles.statusHeader}>
             <Ionicons
@@ -123,18 +150,24 @@ export default function HomeScreen() {
               <Text style={styles.statusTitle}>
                 {isLogged ? "Proof Logged" : "No Proof Yet"}
               </Text>
-              <Text style={styles.statusSubtitle}>
-                {isLogged
-                  ? `Created at ${
-                      todayRecord
-                        ? new Date(todayRecord.createdAt).toLocaleTimeString(
-                            "en-US",
-                            { hour: "2-digit", minute: "2-digit" }
-                          )
-                        : ""
-                    }`
-                  : "Create your proof for today"}
-              </Text>
+              {isLogged ? (
+                <Text style={styles.statusSubtitle}>
+                  {todayRecord
+                    ? `Created at ${new Date(
+                        todayRecord.createdAt
+                      ).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}`
+                    : "Proof logged for today"}
+                </Text>
+              ) : (
+                <Text style={styles.statusSubtitle}>
+                  {homePrompt
+                    ? homePrompt
+                    : "Add a short note or a photo you might need later."}
+                </Text>
+              )}
             </View>
           </View>
 
@@ -175,6 +208,37 @@ export default function HomeScreen() {
               {isLogged ? "View Today's Proof" : "Log Today"}
             </Text>
           </TouchableOpacity>
+        </View>
+
+        {/* This Week at a Glance */}
+        <View style={styles.weekStripContainer}>
+          <Text style={styles.weekStripTitle}>This Week</Text>
+          <View style={styles.weekStrip}>
+            {weekStatus.map((day) => {
+              const isTodayDot = day.dateKey === todayDateKey;
+              const isLoggedDot = day.isLogged;
+
+              return (
+                <View key={day.dateKey} style={styles.weekDayItem}>
+                  <Text style={styles.weekDayLabel}>
+                    {new Date(day.dateKey)
+                      .toLocaleDateString("en-US", {
+                        weekday: "short",
+                      })
+                      .charAt(0)}
+                  </Text>
+                  <View
+                    style={[
+                      styles.weekDayDot,
+                      isLoggedDot && styles.weekDayDotLogged,
+                      !isLoggedDot && styles.weekDayDotEmpty,
+                      isTodayDot && styles.weekDayDotTodayBorder,
+                    ]}
+                  />
+                </View>
+              );
+            })}
+          </View>
         </View>
 
         {/* Quick Stats */}
@@ -363,6 +427,50 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginBottom: 20,
+  },
+  weekStripContainer: {
+    marginBottom: 20,
+  },
+  weekStripTitle: {
+    fontSize: 13,
+    fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
+    color: "#666",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+    marginBottom: 10,
+  },
+  weekStrip: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  weekDayItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  weekDayLabel: {
+    fontSize: 11,
+    fontFamily: getFontFamily("medium"),
+    color: "#888",
+    marginBottom: 4,
+  },
+  weekDayDot: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  weekDayDotLogged: {
+    backgroundColor: "#000",
+    borderColor: "#000",
+  },
+  weekDayDotEmpty: {
+    backgroundColor: "#f5f5f5",
+  },
+  weekDayDotTodayBorder: {
+    borderWidth: 2,
+    borderColor: "#34C759",
   },
   statCard: {
     flex: 1,
