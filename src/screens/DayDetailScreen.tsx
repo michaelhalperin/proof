@@ -326,14 +326,33 @@ export default function DayDetailScreen() {
     }
   };
 
+  const handleDone = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate("MainTabs");
+    }
+  };
+
   return (
     <View style={styles.container}>
+      {/* Top bar with Done */}
+      <View style={[styles.headerBar, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          onPress={handleDone}
+          activeOpacity={0.7}
+          style={styles.doneButton}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+        >
+          <Text style={styles.doneButtonText}>Done</Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingTop: insets.top + 20 },
+          { paddingTop: 16 },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -604,6 +623,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f0f2f5",
+  },
+  headerBar: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+    backgroundColor: "#f0f2f5",
+  },
+  doneButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  doneButtonText: {
+    fontSize: 17,
+    fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
+    color: "#000000",
   },
   scrollView: {
     flex: 1,

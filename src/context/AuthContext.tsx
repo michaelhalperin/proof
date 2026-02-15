@@ -5,21 +5,20 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import * as SecureStore from "expo-secure-store";
-import * as Crypto from "expo-crypto";
 import {
   initAuthDatabase,
   createUser,
+  login as serverLogin,
+  getMe,
   getUserByEmail,
-  verifyPassword,
-  deleteUser,
+  deleteMe,
   verifyEmail,
   resetPasswordWithToken,
   verifyPasswordResetPin,
   generateEmailVerificationPin,
   setPasswordResetToken,
-  User as UserDB,
 } from "../db/auth";
+import { getAuthToken, setAuthToken, clearAuthToken } from "../utils/authToken";
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
@@ -77,19 +76,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadStoredUser = async () => {
     try {
-      const storedUser = await SecureStore.getItemAsync("currentUser");
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      const token = await getAuthToken();
+      if (!token) {
+        setIsLoading(false);
+        return;
       }
+      const userData = await getMe();
+      setUser({ id: userData.id, email: userData.email, name: userData.name });
     } catch (error) {
       logError("Error loading stored user", {}, error as Error);
+      await clearAuthToken();
     } finally {
       setIsLoading(false);
     }
   };
 
   const login = async (email: string, password: string) => {
-    // Check rate limit
     const rateLimitCheck = await checkRateLimit(email.toLowerCase(), "AUTH");
     if (!rateLimitCheck.allowed) {
       const errorMessage = getRateLimitErrorMessage(rateLimitCheck.lockedUntil);
@@ -98,42 +100,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const userData = await getUserByEmail(email);
-      if (!userData) {
-        // Record failed attempt for rate limiting
-        await recordRateLimitAttempt(email.toLowerCase(), "AUTH");
-        throw new Error("User not found");
-      }
-
-      const isValid = await verifyPassword(password, userData.passwordHash);
-      if (!isValid) {
-        // Record failed attempt for rate limiting
-        await recordRateLimitAttempt(email.toLowerCase(), "AUTH");
-        throw new Error("Invalid password");
-      }
-
-      // Check if email is verified (handle both boolean and integer from SQLite)
-      const isVerified =
-        userData.emailVerified === true || userData.emailVerified === 1;
-      if (!isVerified) {
-        throw new Error(
-          "Please verify your email address before logging in. Check your inbox for the verification email."
-        );
-      }
-
-      // Reset rate limit on successful login
+      const { token, user: userData } = await serverLogin(email, password);
+      await setAuthToken(token);
+      setUser({ id: userData.id, email: userData.email, name: userData.name });
       await resetRateLimit(email.toLowerCase(), "AUTH");
-
-      const userObj = {
-        id: userData.id,
-        email: userData.email,
-        name: userData.name,
-      };
-
-      setUser(userObj);
-      await SecureStore.setItemAsync("currentUser", JSON.stringify(userObj));
       logInfo("User logged in successfully", { email: userData.email });
-    } catch (error) {
+    } catch (error: any) {
+      await recordRateLimitAttempt(email.toLowerCase(), "AUTH");
       throw error;
     }
   };
@@ -168,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await SecureStore.deleteItemAsync("currentUser");
+      await clearAuthToken();
       setUser(null);
       logInfo("User logged out");
     } catch (error) {
@@ -182,11 +155,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // Delete user account
-      await deleteUser(user.email);
-
-      // Clear stored session
-      await SecureStore.deleteItemAsync("currentUser");
+      await deleteMe();
+      await clearAuthToken();
       setUser(null);
       logInfo("User account deleted", { email: user.email });
     } catch (error) {
@@ -235,9 +205,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("User not found");
     }
 
-    // Check if email is verified (handle both boolean and integer from SQLite)
-    const isVerified =
-      userData.emailVerified === true || userData.emailVerified === 1;
+    const isVerified = userData.emailVerified === true;
     if (isVerified) {
       throw new Error("Email is already verified");
     }
@@ -305,11 +273,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return false;
     }
     try {
-      const userData = await getUserByEmail(user.email);
-      if (!userData) {
-        return false;
-      }
-      return userData.emailVerified === true || userData.emailVerified === 1;
+      const userData = await getMe();
+      return userData.emailVerified === true;
     } catch {
       return false;
     }

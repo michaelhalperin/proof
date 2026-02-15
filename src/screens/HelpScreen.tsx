@@ -5,6 +5,9 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -82,9 +85,7 @@ const FAQ_DATA: FAQItem[] = [
 export default function HelpScreen() {
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
-  const [expandedItems, setExpandedItems] = React.useState<Set<number>>(
-    new Set()
-  );
+  const [expandedIndex, setExpandedIndex] = React.useState<number | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -93,13 +94,11 @@ export default function HelpScreen() {
   );
 
   const toggleItem = (index: number) => {
-    const newExpanded = new Set(expandedItems);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
+    if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
     }
-    setExpandedItems(newExpanded);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedIndex((prev) => (prev === index ? null : index));
   };
 
   return (
@@ -127,12 +126,12 @@ export default function HelpScreen() {
             >
               <Text style={styles.faqQuestionText}>{item.question}</Text>
               <Ionicons
-                name={expandedItems.has(index) ? 'chevron-up' : 'chevron-down'}
+                name={expandedIndex === index ? 'chevron-up' : 'chevron-down'}
                 size={20}
                 color="#666"
               />
             </TouchableOpacity>
-            {expandedItems.has(index) && (
+            {expandedIndex === index && (
               <View style={styles.faqAnswer}>
                 <Text style={styles.faqAnswerText}>{item.answer}</Text>
               </View>

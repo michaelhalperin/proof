@@ -22,9 +22,19 @@ export const EMAILJS_SERVICE_ID = getEnvVar("EMAILJS_SERVICE_ID");
 export const EMAILJS_TEMPLATE_ID = getEnvVar("EMAILJS_TEMPLATE_ID");
 export const EMAILJS_PUBLIC_KEY = getEnvVar("EMAILJS_PUBLIC_KEY");
 
+// API Configuration
+export const API_URL = getEnvVar("API_URL", "http://localhost:3000/api");
+
 // Log SUPPORT_EMAIL configuration for debugging
 if (!SUPPORT_EMAIL) {
   console.warn("⚠️ SUPPORT_EMAIL is not configured. Support emails will not be sent to support address.");
 } else {
   console.log("✓ SUPPORT_EMAIL configured:", SUPPORT_EMAIL);
+}
+
+// Log API_URL configuration
+if (!API_URL || API_URL === "http://localhost:3000/api") {
+  console.warn("⚠️ API_URL is not configured. Using default localhost. Make sure your backend server is running.");
+} else {
+  console.log("✓ API_URL configured:", API_URL);
 }

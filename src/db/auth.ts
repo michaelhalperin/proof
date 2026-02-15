@@ -1,186 +1,137 @@
-import * as SQLite from "expo-sqlite";
-import * as Crypto from "expo-crypto";
+import { apiGet, apiPost, apiPut, apiDelete } from "../utils/api";
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  passwordHash: string;
-  createdAt: number;
-  emailVerified?: boolean | number; // SQLite stores as INTEGER (0 or 1)
-  emailVerificationToken?: string | null;
-  emailVerificationTokenExpiry?: number | null;
-  passwordResetToken?: string | null;
-  passwordResetTokenExpiry?: number | null;
+  emailVerified?: boolean;
+  createdAt?: number;
 }
 
-let authDb: SQLite.SQLiteDatabase | null = null;
-
-export async function initAuthDatabase(): Promise<SQLite.SQLiteDatabase> {
-  if (authDb) {
-    return authDb;
-  }
-
-  authDb = await SQLite.openDatabaseAsync("proof_auth.db");
-
-  await authDb.execAsync(`
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
-      name TEXT NOT NULL,
-      passwordHash TEXT NOT NULL,
-      createdAt INTEGER NOT NULL,
-      emailVerified INTEGER DEFAULT 0,
-      emailVerificationToken TEXT,
-      emailVerificationTokenExpiry INTEGER,
-      passwordResetToken TEXT,
-      passwordResetTokenExpiry INTEGER
-    );
-  `);
-
-  // Add new columns if they don't exist (migration)
-  try {
-    await authDb.execAsync(`
-      ALTER TABLE users ADD COLUMN emailVerified INTEGER DEFAULT 0;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  try {
-    await authDb.execAsync(`
-      ALTER TABLE users ADD COLUMN emailVerificationToken TEXT;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  try {
-    await authDb.execAsync(`
-      ALTER TABLE users ADD COLUMN emailVerificationTokenExpiry INTEGER;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  try {
-    await authDb.execAsync(`
-      ALTER TABLE users ADD COLUMN passwordResetToken TEXT;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  try {
-    await authDb.execAsync(`
-      ALTER TABLE users ADD COLUMN passwordResetTokenExpiry INTEGER;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  return authDb;
+interface GetUserResponse {
+  user: User;
 }
 
+interface CreateUserResponse {
+  id: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: User;
+}
+
+interface VerifyPasswordResponse {
+  valid: boolean;
+}
+
+interface VerifyEmailResponse {
+  verified: boolean;
+}
+
+interface VerifyPasswordResetPinResponse {
+  valid: boolean;
+}
+
+interface ResetPasswordResponse {
+  success: boolean;
+}
+
+interface GenerateEmailVerificationPinResponse {
+  pin: string;
+}
+
+/**
+ * Initialize auth database connection (no-op for API-based implementation)
+ */
+export async function initAuthDatabase(): Promise<any> {
+  return null;
+}
+
+/**
+ * Server login: email + plain password. Returns JWT and user.
+ */
+export async function login(
+  email: string,
+  password: string
+): Promise<{ token: string; user: User }> {
+  const response = await apiPost<LoginResponse>("/auth/login", {
+    email: email.trim().toLowerCase(),
+    password,
+  });
+  return { token: response.token, user: response.user };
+}
+
+/**
+ * Get current user from JWT (GET /auth/me).
+ */
+export async function getMe(): Promise<User> {
+  const response = await apiGet<GetUserResponse>("/auth/me");
+  return response.user;
+}
+
+/**
+ * Create a new user (plain password; server hashes with bcrypt).
+ */
 export async function createUser(
   email: string,
   password: string,
   name: string,
   emailVerificationPin?: string
 ): Promise<string> {
-  const database = await initAuthDatabase();
-  const id = Crypto.randomUUID();
-  const passwordHash = await hashPassword(password);
-  const createdAt = Date.now();
-  const emailVerificationTokenExpiry = emailVerificationPin
-    ? Date.now() + 10 * 60 * 1000 // 10 minutes
-    : null;
-
-  await database.runAsync(
-    `INSERT INTO users (id, email, name, passwordHash, createdAt, emailVerified, emailVerificationToken, emailVerificationTokenExpiry) 
-     VALUES (?, ?, ?, ?, ?, 0, ?, ?)`,
-    [
-      id,
-      email.toLowerCase().trim(),
-      name.trim(),
-      passwordHash,
-      createdAt,
-      emailVerificationPin || null,
-      emailVerificationTokenExpiry,
-    ]
-  );
-
-  return id;
-}
-
-export async function getUserByEmail(email: string): Promise<User | null> {
-  const database = await initAuthDatabase();
-  const result = await database.getFirstAsync<User>(
-    "SELECT * FROM users WHERE email = ?",
-    [email.toLowerCase().trim()]
-  );
-  return result || null;
-}
-
-export async function hashPassword(password: string): Promise<string> {
-  return await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
+  const response = await apiPost<CreateUserResponse>("/auth/signup", {
+    email: email.trim().toLowerCase(),
     password,
-    { encoding: Crypto.CryptoEncoding.HEX }
-  );
+    name: name.trim(),
+    emailVerificationPin,
+  });
+  return response.id;
 }
 
-export async function verifyPassword(
-  password: string,
-  storedHash: string
-): Promise<boolean> {
-  const passwordHash = await hashPassword(password);
-  return passwordHash === storedHash;
+/**
+ * Get user by email (returns safe fields only; no passwordHash or tokens).
+ */
+export async function getUserByEmail(email: string): Promise<User | null> {
+  try {
+    const response = await apiGet<GetUserResponse>(
+      `/auth/user/${encodeURIComponent(email.toLowerCase().trim())}`
+    );
+    return response.user || null;
+  } catch (error: any) {
+    if (error.message?.includes("404") || error.message?.includes("not found")) {
+      return null;
+    }
+    throw error;
+  }
 }
 
+/**
+ * Change user password (plain passwords; server hashes with bcrypt).
+ */
 export async function changeUserPassword(
   email: string,
   currentPassword: string,
   newPassword: string
 ): Promise<void> {
-  const database = await initAuthDatabase();
-
-  // Get user and verify current password
-  const user = await getUserByEmail(email);
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const isValidCurrentPassword = await verifyPassword(
+  await apiPut("/auth/change-password", {
+    email: email.toLowerCase().trim(),
     currentPassword,
-    user.passwordHash
-  );
-  if (!isValidCurrentPassword) {
-    throw new Error("Current password is incorrect");
-  }
-
-  // Hash new password and update
-  const newPasswordHash = await hashPassword(newPassword);
-
-  await database.runAsync("UPDATE users SET passwordHash = ? WHERE email = ?", [
-    newPasswordHash,
-    email.toLowerCase().trim(),
-  ]);
+    newPassword,
+  });
 }
 
+/**
+ * Delete current user (requires JWT). Use this instead of deleteUser for authenticated delete.
+ */
+export async function deleteMe(): Promise<void> {
+  await apiDelete("/auth/me");
+}
+
+/**
+ * Delete user by email (unauthenticated; kept for compatibility).
+ */
 export async function deleteUser(email: string): Promise<void> {
-  const database = await initAuthDatabase();
-
-  // Verify user exists
-  const user = await getUserByEmail(email);
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  // Delete user
-  await database.runAsync("DELETE FROM users WHERE email = ?", [
-    email.toLowerCase().trim(),
-  ]);
+  await apiDelete(`/auth/user/${encodeURIComponent(email)}`);
 }
 
 /**
@@ -190,32 +141,15 @@ export async function verifyEmail(
   email: string,
   token: string
 ): Promise<boolean> {
-  const database = await initAuthDatabase();
-  const user = await getUserByEmail(email);
-
-  if (!user || !user.emailVerificationToken || user.emailVerified) {
+  try {
+    const response = await apiPost<VerifyEmailResponse>("/auth/verify-email", {
+      email: email.toLowerCase().trim(),
+      token,
+    });
+    return response.verified;
+  } catch (error) {
     return false;
   }
-
-  // Check token and expiry
-  if (user.emailVerificationToken !== token) {
-    return false;
-  }
-
-  if (
-    user.emailVerificationTokenExpiry &&
-    user.emailVerificationTokenExpiry < Date.now()
-  ) {
-    return false;
-  }
-
-  // Mark email as verified
-  await database.runAsync(
-    "UPDATE users SET emailVerified = 1, emailVerificationToken = NULL, emailVerificationTokenExpiry = NULL WHERE email = ?",
-    [email.toLowerCase().trim()]
-  );
-
-  return true;
 }
 
 /**
@@ -225,13 +159,10 @@ export async function setPasswordResetToken(
   email: string,
   pin: string
 ): Promise<void> {
-  const database = await initAuthDatabase();
-  const expiry = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  await database.runAsync(
-    "UPDATE users SET passwordResetToken = ?, passwordResetTokenExpiry = ? WHERE email = ?",
-    [pin, expiry, email.toLowerCase().trim()]
-  );
+  await apiPost("/auth/password-reset/set", {
+    email: email.toLowerCase().trim(),
+    pin,
+  });
 }
 
 /**
@@ -241,60 +172,41 @@ export async function verifyPasswordResetPin(
   email: string,
   pin: string
 ): Promise<boolean> {
-  const user = await getUserByEmail(email);
-
-  if (!user) {
+  try {
+    const response = await apiPost<VerifyPasswordResetPinResponse>(
+      "/auth/password-reset/verify",
+      {
+        email: email.toLowerCase().trim(),
+        pin,
+      }
+    );
+    return response.valid;
+  } catch (error) {
     return false;
   }
-
-  if (!user.passwordResetToken || user.passwordResetToken !== pin.trim()) {
-    return false;
-  }
-
-  if (
-    user.passwordResetTokenExpiry &&
-    user.passwordResetTokenExpiry < Date.now()
-  ) {
-    return false;
-  }
-
-  return true;
 }
 
 /**
- * Reset password with PIN code
+ * Reset password with PIN code (plain newPassword; server hashes with bcrypt).
  */
 export async function resetPasswordWithToken(
   email: string,
   pin: string,
   newPassword: string
 ): Promise<boolean> {
-  const database = await initAuthDatabase();
-  const user = await getUserByEmail(email);
-
-  if (!user) {
+  try {
+    const response = await apiPost<ResetPasswordResponse>(
+      "/auth/password-reset/reset",
+      {
+        email: email.toLowerCase().trim(),
+        pin,
+        newPassword,
+      }
+    );
+    return response.success;
+  } catch (error) {
     return false;
   }
-
-  if (!user.passwordResetToken || user.passwordResetToken !== pin.trim()) {
-    return false;
-  }
-
-  if (
-    user.passwordResetTokenExpiry &&
-    user.passwordResetTokenExpiry < Date.now()
-  ) {
-    return false;
-  }
-
-  // Update password and clear reset token
-  const newPasswordHash = await hashPassword(newPassword);
-  await database.runAsync(
-    "UPDATE users SET passwordHash = ?, passwordResetToken = NULL, passwordResetTokenExpiry = NULL WHERE email = ?",
-    [newPasswordHash, email.toLowerCase().trim()]
-  );
-
-  return true;
 }
 
 /**
@@ -303,15 +215,11 @@ export async function resetPasswordWithToken(
 export async function generateEmailVerificationPin(
   email: string
 ): Promise<string> {
-  const database = await initAuthDatabase();
-  // Generate 6-digit PIN
-  const pin = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiry = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  await database.runAsync(
-    "UPDATE users SET emailVerificationToken = ?, emailVerificationTokenExpiry = ? WHERE email = ?",
-    [pin, expiry, email.toLowerCase().trim()]
+  const response = await apiPost<GenerateEmailVerificationPinResponse>(
+    "/auth/email-verification/generate",
+    {
+      email: email.toLowerCase().trim(),
+    }
   );
-
-  return pin;
+  return response.pin;
 }

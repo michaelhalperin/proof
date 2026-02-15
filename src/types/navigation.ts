@@ -20,7 +20,6 @@ export type RootStackParamList = {
   TermsOfService: undefined;
   Contact: undefined;
   ChangePassword: undefined;
-  AdminDashboard: undefined;
   Help: undefined;
   Onboarding: undefined;
   PromptsSettings: undefined;

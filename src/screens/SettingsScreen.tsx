@@ -109,13 +109,23 @@ export default function SettingsScreen() {
     useState<boolean>(true);
   const [mapTabVisible, setMapTabVisibleState] = useState<boolean>(true);
   const [emailVerified, setEmailVerified] = useState<boolean>(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   useEffect(() => {
-    loadStats();
-    loadReminderSettings();
-    loadPreferences();
-    loadEmailVerificationStatus();
+    let cancelled = false;
+    (async () => {
+      await Promise.all([
+        loadStats(),
+        loadReminderSettings(),
+        loadPreferences(),
+        loadEmailVerificationStatus(),
+      ]);
+      if (!cancelled) setIsHydrated(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const loadPreferences = async () => {
@@ -654,6 +664,21 @@ export default function SettingsScreen() {
     ]);
   };
 
+  if (!isHydrated) {
+    return (
+      <View
+        style={[
+          styles.container,
+          styles.hydratingContainer,
+          { paddingTop: insets.top },
+        ]}
+      >
+        <ActivityIndicator size="large" color="#000" />
+        <Text style={styles.hydratingText}>Loading settings…</Text>
+      </View>
+    );
+  }
+
   return (
     <>
       <ScrollView
@@ -945,16 +970,6 @@ export default function SettingsScreen() {
                 label="Contact & Support"
                 onPress={() => navigation.navigate("Contact")}
               />
-              {user?.email === "michaelhalperin2@gmail.com" && (
-                <>
-                  <View style={styles.divider} />
-                  <SettingItem
-                    icon="shield-outline"
-                    label="Admin Dashboard"
-                    onPress={() => navigation.navigate("AdminDashboard")}
-                  />
-                </>
-              )}
               <View style={styles.divider} />
               <View style={styles.infoRow}>
                 <View style={styles.infoLeft}>
@@ -1154,6 +1169,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f0f2f5",
+  },
+  hydratingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  hydratingText: {
+    marginTop: 12,
+    fontSize: 15,
+    color: "#666",
+    fontFamily: getFontFamily("regular"),
   },
   content: {
     paddingHorizontal: 20,

@@ -16,6 +16,7 @@ import { RootStackParamList } from "./src/types/navigation";
 import { AuthProvider, useAuth } from "./src/context/AuthContext";
 import { ErrorBoundary } from "./src/components/ErrorBoundary";
 import { logError, logInfo } from "./src/utils/logger";
+import { clearLocalSqliteIfNeeded } from "./src/utils/clearLocalSqlite";
 import { getFontFamily } from "./src/config/theme";
 import TabNavigator from "./src/navigation/TabNavigator";
 import LoginScreen from "./src/screens/LoginScreen";
@@ -30,7 +31,6 @@ import PrivacyScreen from "./src/screens/PrivacyScreen";
 import TermsOfServiceScreen from "./src/screens/TermsOfServiceScreen";
 import ContactScreen from "./src/screens/ContactScreen";
 import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
-import AdminDashboardScreen from "./src/screens/AdminDashboardScreen";
 import HelpScreen from "./src/screens/HelpScreen";
 import OnboardingScreen, { hasCompletedOnboarding } from "./src/screens/OnboardingScreen";
 import PromptsSettingsScreen from "./src/screens/PromptsSettingsScreen";
@@ -161,11 +161,6 @@ function AppNavigator() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
-              name="AdminDashboard"
-              component={AdminDashboardScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
               name="Help"
               component={HelpScreen}
               options={{ headerShown: false }}
@@ -209,6 +204,9 @@ export default function App() {
     initDatabase().catch((error) => {
       logError("Failed to initialize database", {}, error);
     });
+
+    // Clear local SQLite data once (migration to MongoDB)
+    clearLocalSqliteIfNeeded().catch(() => {});
 
     // Initialize notifications (reminders)
     initializeNotifications().catch((error) => {

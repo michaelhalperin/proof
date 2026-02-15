@@ -87,13 +87,7 @@ export default function PromptsSettingsScreen() {
     }
   };
 
-  const handleDeletePrompt = async (id: string) => {
-    // Don't allow deleting default prompts
-    if (id.startsWith("default-")) {
-      Alert.alert("Cannot Delete", "Default prompts cannot be deleted.");
-      return;
-    }
-
+  const handleDeletePrompt = (id: string) => {
     Alert.alert(
       "Delete Prompt",
       "Are you sure you want to delete this prompt?",
@@ -227,15 +221,13 @@ export default function PromptsSettingsScreen() {
                         </View>
                       )}
                     </View>
-                    {!prompt.id.startsWith("default-") && (
-                      <TouchableOpacity
-                        style={styles.deleteButton}
-                        onPress={() => handleDeletePrompt(prompt.id)}
-                        activeOpacity={0.7}
-                      >
-                        <Ionicons name="trash-outline" size={20} color="#ff3b30" />
-                      </TouchableOpacity>
-                    )}
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDeletePrompt(prompt.id)}
+                      activeOpacity={0.7}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#ff3b30" />
+                    </TouchableOpacity>
                   </View>
                 </View>
               ))}

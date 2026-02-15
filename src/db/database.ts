@@ -1,4 +1,4 @@
-import * as SQLite from "expo-sqlite";
+import { apiGet, apiPost, apiPut, apiDelete, apiPatch } from "../utils/api";
 
 export interface Record {
   dateKey: string;
@@ -8,7 +8,7 @@ export interface Record {
   algo: string;
   tags?: string; // JSON array of tags
   location?: string; // JSON object with lat, lng, address
-  pinned?: boolean | number; // SQLite stores as INTEGER (0 or 1)
+  pinned?: boolean | number; // Can be boolean or number for compatibility
 }
 
 export interface Photo {
@@ -20,220 +20,125 @@ export interface Photo {
   sortIndex: number;
 }
 
-let db: SQLite.SQLiteDatabase | null = null;
-
-export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
-  if (db) {
-    return db;
-  }
-
-  db = await SQLite.openDatabaseAsync("proof.db");
-
-  // Create records table
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS records (
-      dateKey TEXT PRIMARY KEY,
-      createdAt INTEGER NOT NULL,
-      note TEXT NOT NULL,
-      recordHash TEXT NOT NULL,
-      algo TEXT NOT NULL,
-      tags TEXT,
-      location TEXT,
-      pinned INTEGER DEFAULT 0
-    );
-  `);
-
-  // Migrate existing records to add new columns if they don't exist
-  try {
-    await db.execAsync(`
-      ALTER TABLE records ADD COLUMN tags TEXT;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  try {
-    await db.execAsync(`
-      ALTER TABLE records ADD COLUMN location TEXT;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  try {
-    await db.execAsync(`
-      ALTER TABLE records ADD COLUMN pinned INTEGER DEFAULT 0;
-    `);
-  } catch (e) {
-    // Column may already exist, ignore
-  }
-
-  // Create photos table
-  await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS photos (
-      id TEXT PRIMARY KEY,
-      dateKey TEXT NOT NULL,
-      fileUri TEXT NOT NULL,
-      mimeType TEXT NOT NULL,
-      sha256 TEXT NOT NULL,
-      sortIndex INTEGER NOT NULL,
-      FOREIGN KEY (dateKey) REFERENCES records(dateKey)
-    );
-  `);
-
-  // Create indexes for performance optimization
-  try {
-    // Index on createdAt for sorting/querying by date
-    await db.execAsync(`
-      CREATE INDEX IF NOT EXISTS idx_records_createdAt ON records(createdAt DESC);
-    `);
-  } catch (e) {
-    // Index may already exist, ignore
-  }
-
-  try {
-    // Index on dateKey in photos for faster joins
-    await db.execAsync(`
-      CREATE INDEX IF NOT EXISTS idx_photos_dateKey ON photos(dateKey);
-    `);
-  } catch (e) {
-    // Index may already exist, ignore
-  }
-
-  try {
-    // Composite index for photos sorting
-    await db.execAsync(`
-      CREATE INDEX IF NOT EXISTS idx_photos_dateKey_sortIndex ON photos(dateKey, sortIndex);
-    `);
-  } catch (e) {
-    // Index may already exist, ignore
-  }
-
-  return db;
+interface GetRecordResponse {
+  record: Record;
+  photos: Photo[];
 }
 
+interface GetAllRecordsResponse {
+  records: Record[];
+}
+
+interface RecordExistsResponse {
+  exists: boolean;
+}
+
+interface DeleteRecordResponse {
+  message: string;
+  photoUris: string[];
+}
+
+interface DeleteAllRecordsResponse {
+  message: string;
+  photoUris: string[];
+}
+
+interface TogglePinnedResponse {
+  pinned: boolean;
+}
+
+interface GetPinnedRecordsResponse {
+  records: Record[];
+}
+
+/**
+ * Initialize database connection (no-op for API-based implementation)
+ * Kept for backward compatibility
+ */
+export async function initDatabase(): Promise<any> {
+  // No-op for API-based implementation
+  return null;
+}
+
+/**
+ * Get a single record by dateKey
+ */
 export async function getRecord(dateKey: string): Promise<Record | null> {
-  const database = await initDatabase();
-  const result = await database.getFirstAsync<Record>(
-    "SELECT * FROM records WHERE dateKey = ?",
-    [dateKey]
-  );
-  return result || null;
+  try {
+    const response = await apiGet<GetRecordResponse>(`/records/${dateKey}`);
+    return response.record || null;
+  } catch (error: any) {
+    if (error.message?.includes("404") || error.message?.includes("not found")) {
+      return null;
+    }
+    throw error;
+  }
 }
 
+/**
+ * Get photos for a specific record
+ */
 export async function getPhotos(dateKey: string): Promise<Photo[]> {
-  const database = await initDatabase();
-  const result = await database.getAllAsync<Photo>(
-    "SELECT * FROM photos WHERE dateKey = ? ORDER BY sortIndex, id",
-    [dateKey]
-  );
-  return result || [];
+  try {
+    const response = await apiGet<GetRecordResponse>(`/records/${dateKey}`);
+    return response.photos || [];
+  } catch (error: any) {
+    if (error.message?.includes("404") || error.message?.includes("not found")) {
+      return [];
+    }
+    throw error;
+  }
 }
 
+/**
+ * Insert a new record with photos
+ */
 export async function insertRecord(
   record: Record,
   photos: Photo[]
 ): Promise<void> {
-  const database = await initDatabase();
+  await apiPost("/records", { record, photos });
+}
 
-  await database.runAsync(
-    "INSERT INTO records (dateKey, createdAt, note, recordHash, algo, tags, location, pinned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    [
-      record.dateKey,
-      record.createdAt,
-      record.note,
-      record.recordHash,
-      record.algo,
-      record.tags || null,
-      record.location || null,
-      record.pinned ? 1 : 0,
-    ]
-  );
-
-  for (const photo of photos) {
-    await database.runAsync(
-      "INSERT INTO photos (id, dateKey, fileUri, mimeType, sha256, sortIndex) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        photo.id,
-        photo.dateKey,
-        photo.fileUri,
-        photo.mimeType,
-        photo.sha256,
-        photo.sortIndex,
-      ]
-    );
+/**
+ * Check if a record exists
+ */
+export async function recordExists(dateKey: string): Promise<boolean> {
+  try {
+    const response = await apiGet<RecordExistsResponse>(`/records/${dateKey}/exists`);
+    return response.exists;
+  } catch (error) {
+    return false;
   }
 }
 
-export async function recordExists(dateKey: string): Promise<boolean> {
-  const record = await getRecord(dateKey);
-  return record !== null;
-}
-
+/**
+ * Get all records
+ */
 export async function getAllRecords(): Promise<Record[]> {
-  const database = await initDatabase();
-  const result = await database.getAllAsync<Record>(
-    "SELECT * FROM records ORDER BY dateKey DESC"
-  );
-  return result || [];
+  try {
+    const response = await apiGet<GetAllRecordsResponse>("/records");
+    return response.records || [];
+  } catch (error) {
+    throw error;
+  }
 }
 
+/**
+ * Update an existing record
+ */
 export async function updateRecord(
   record: Record,
   photos: Photo[]
 ): Promise<void> {
-  const database = await initDatabase();
-
-  // Get existing pinned status if not provided
-  const existingRecord = await getRecord(record.dateKey);
-  const pinned = record.pinned !== undefined 
-    ? (record.pinned ? 1 : 0) 
-    : (existingRecord?.pinned ? 1 : 0);
-
-  // Update record
-  await database.runAsync(
-    "UPDATE records SET createdAt = ?, note = ?, recordHash = ?, algo = ?, tags = ?, location = ?, pinned = ? WHERE dateKey = ?",
-    [
-      record.createdAt,
-      record.note,
-      record.recordHash,
-      record.algo,
-      record.tags || null,
-      record.location || null,
-      pinned,
-      record.dateKey,
-    ]
-  );
-
-  // Delete existing photos
-  await database.runAsync("DELETE FROM photos WHERE dateKey = ?", [
-    record.dateKey,
-  ]);
-
-  // Insert new photos
-  for (const photo of photos) {
-    await database.runAsync(
-      "INSERT INTO photos (id, dateKey, fileUri, mimeType, sha256, sortIndex) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        photo.id,
-        photo.dateKey,
-        photo.fileUri,
-        photo.mimeType,
-        photo.sha256,
-        photo.sortIndex,
-      ]
-    );
-  }
+  await apiPut(`/records/${record.dateKey}`, { record, photos });
 }
 
+/**
+ * Delete a record
+ */
 export async function deleteRecord(dateKey: string): Promise<void> {
-  const database = await initDatabase();
-
-  // Delete photos first (foreign key constraint)
-  await database.runAsync("DELETE FROM photos WHERE dateKey = ?", [dateKey]);
-
-  // Delete record
-  await database.runAsync("DELETE FROM records WHERE dateKey = ?", [dateKey]);
+  await apiDelete<DeleteRecordResponse>(`/records/${dateKey}`);
 }
 
 /**
@@ -241,51 +146,34 @@ export async function deleteRecord(dateKey: string): Promise<void> {
  * Returns array of photo file URIs that should be deleted from file system
  */
 export async function deleteAllRecords(): Promise<string[]> {
-  const database = await initDatabase();
-
-  // Get all photo file URIs before deleting
-  const photos = await database.getAllAsync<Photo>(
-    "SELECT fileUri FROM photos"
-  );
-  const photoUris = photos.map((p) => p.fileUri);
-
-  // Delete all photos first (foreign key constraint)
-  await database.runAsync("DELETE FROM photos");
-
-  // Delete all records
-  await database.runAsync("DELETE FROM records");
-
-  return photoUris;
+  try {
+    const response = await apiDelete<DeleteAllRecordsResponse>("/records");
+    return response.photoUris || [];
+  } catch (error) {
+    throw error;
+  }
 }
 
 /**
  * Toggle pinned status of a record
  */
 export async function togglePinnedRecord(dateKey: string): Promise<boolean> {
-  const database = await initDatabase();
-  const record = await getRecord(dateKey);
-  
-  if (!record) {
-    throw new Error("Record not found");
+  try {
+    const response = await apiPatch<TogglePinnedResponse>(`/records/${dateKey}/toggle-pinned`);
+    return response.pinned;
+  } catch (error) {
+    throw error;
   }
-
-  const newPinnedStatus = !(record.pinned === true || record.pinned === 1);
-  
-  await database.runAsync(
-    "UPDATE records SET pinned = ? WHERE dateKey = ?",
-    [newPinnedStatus ? 1 : 0, dateKey]
-  );
-
-  return newPinnedStatus;
 }
 
 /**
  * Get all pinned records
  */
 export async function getPinnedRecords(): Promise<Record[]> {
-  const database = await initDatabase();
-  const result = await database.getAllAsync<Record>(
-    "SELECT * FROM records WHERE pinned = 1 ORDER BY dateKey DESC"
-  );
-  return result || [];
+  try {
+    const response = await apiGet<GetPinnedRecordsResponse>("/records/pinned/all");
+    return response.records || [];
+  } catch (error) {
+    throw error;
+  }
 }

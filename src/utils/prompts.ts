@@ -74,6 +74,16 @@ export async function deletePrompt(id: string): Promise<void> {
 }
 
 /**
+ * Remove all default prompts (keeps only custom ones).
+ * After this, getPrompts() will return only custom prompts.
+ */
+export async function deleteDefaultPrompts(): Promise<void> {
+  const prompts = await getPrompts();
+  const customOnly = prompts.filter((p) => !p.id.startsWith("default-"));
+  await savePrompts(customOnly);
+}
+
+/**
  * Check if prompts are enabled
  */
 export async function arePromptsEnabled(): Promise<boolean> {
