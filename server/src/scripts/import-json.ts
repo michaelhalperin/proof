@@ -23,7 +23,6 @@ async function importData() {
         process.exit(1);
       }
       const recordsData = JSON.parse(fs.readFileSync(recordsPath, "utf-8"));
-      console.log(`Importing ${recordsData.length} records for user ${recordUserId}...`);
 
       for (const recordData of recordsData) {
         try {
@@ -40,24 +39,16 @@ async function importData() {
             photos: recordData.photos || [],
           });
           await record.save();
-          console.log(`  ✓ Imported record: ${recordData.dateKey}`);
         } catch (error: any) {
-          if (error.code === 11000) {
-            console.log(`  ⚠ Skipped duplicate record: ${recordData.dateKey}`);
-          } else {
-            console.error(`  ✗ Error importing record ${recordData.dateKey}:`, error.message);
-          }
+          console.error("Error importing record:", error);
         }
       }
-    } else {
-      console.log("⚠ No records.json file found");
     }
 
     // Import users
     const usersPath = path.join(migrationDir, "users.json");
     if (fs.existsSync(usersPath)) {
       const usersData = JSON.parse(fs.readFileSync(usersPath, "utf-8"));
-      console.log(`Importing ${usersData.length} users...`);
 
       for (const userData of usersData) {
         try {
@@ -74,21 +65,13 @@ async function importData() {
             passwordResetTokenExpiry: userData.passwordResetTokenExpiry,
           });
           await user.save();
-          console.log(`  ✓ Imported user: ${userData.email}`);
         } catch (error: any) {
-          if (error.code === 11000) {
-            console.log(`  ⚠ Skipped duplicate user: ${userData.email}`);
-          } else {
-            console.error(`  ✗ Error importing user ${userData.email}:`, error.message);
-          }
+          console.error("Error importing user:", error);
         }
       }
-    } else {
-      console.log("⚠ No users.json file found");
     }
 
     await mongoose.disconnect();
-    console.log("\n✓ Migration completed successfully!");
   } catch (error) {
     console.error("Migration error:", error);
     process.exit(1);

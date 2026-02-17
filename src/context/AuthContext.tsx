@@ -83,8 +83,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const userData = await getMe();
       setUser({ id: userData.id, email: userData.email, name: userData.name });
-    } catch (error) {
-      logError("Error loading stored user", {}, error as Error);
+    } catch (error: any) {
+      // Expected when token expired (401) or server unreachable (offline)
+      const status = error?.status;
+      if (status === 401) {
+        // Session expired; clear token and show login (no log needed)
+      } else if (status >= 500 || error?.message?.includes("fetch") || error?.message?.includes("network")) {
+        logWarn("Could not reach server; using offline session", { status });
+      } else {
+        logWarn("Stored session invalid", { status: status ?? error?.message });
+      }
       await clearAuthToken();
     } finally {
       setIsLoading(false);

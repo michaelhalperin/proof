@@ -388,11 +388,11 @@ export default function LogTodayScreen() {
         // Use original createdAt for hash computation
         const createdAt = existingRecord.createdAt;
 
-        // Compute new record hash
+        // Compute record hash from the same note we store (trimmed)
         const recordHash = await computeRecordHash(
           todayDateKey,
           createdAt,
-          note,
+          note.trim(),
           canonicalPhotos
         );
 
@@ -466,11 +466,11 @@ export default function LogTodayScreen() {
           })
         );
 
-        // Compute record hash
+        // Compute record hash from the same note we store (trimmed)
         const recordHash = await computeRecordHash(
           todayDateKey,
           createdAt,
-          note,
+          note.trim(),
           canonicalPhotos
         );
 

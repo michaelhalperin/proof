@@ -942,6 +942,12 @@ export default function SettingsScreen() {
             <Text style={styles.sectionTitle}>App</Text>
             <View style={styles.card}>
               <SettingItem
+                icon="shield-checkmark-outline"
+                label="Verify Proof"
+                onPress={() => navigation.navigate("VerifyProof")}
+              />
+              <View style={styles.divider} />
+              <SettingItem
                 icon="help-circle-outline"
                 label="Help & FAQ"
                 onPress={() => navigation.navigate("Help")}

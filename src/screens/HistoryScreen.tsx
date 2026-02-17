@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -332,20 +333,27 @@ export default function HistoryScreen() {
           style={styles.list}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Ionicons name="document-outline" size={64} color="#ccc" />
-              <Text style={styles.emptyTitle}>No Records Yet</Text>
-              <Text style={styles.emptyText}>
-                Start creating your daily proof records to see them here.
-              </Text>
-              <TouchableOpacity
-                style={styles.emptyButton}
-                onPress={() => navigation.navigate('LogToday', {})}
-              >
-                <Ionicons name="add-circle" size={20} color="#fff" />
-                <Text style={styles.emptyButtonText}>Create First Record</Text>
-              </TouchableOpacity>
-            </View>
+            loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#000" />
+                <Text style={styles.loadingText}>Loading history…</Text>
+              </View>
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Ionicons name="document-outline" size={64} color="#ccc" />
+                <Text style={styles.emptyTitle}>No Records Yet</Text>
+                <Text style={styles.emptyText}>
+                  Start creating your daily proof records to see them here.
+                </Text>
+                <TouchableOpacity
+                  style={styles.emptyButton}
+                  onPress={() => navigation.navigate('LogToday', {})}
+                >
+                  <Ionicons name="add-circle" size={20} color="#fff" />
+                  <Text style={styles.emptyButtonText}>Create First Record</Text>
+                </TouchableOpacity>
+              </View>
+            )
           }
         />
       ) : (
@@ -577,6 +585,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
     fontFamily: getFontFamily("semiBold"),
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: "center",
+    marginTop: 60,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 12,
+    fontFamily: getFontFamily("regular"),
   },
   emptyContainer: {
     padding: 40,

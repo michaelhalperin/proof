@@ -34,6 +34,7 @@ import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
 import HelpScreen from "./src/screens/HelpScreen";
 import OnboardingScreen, { hasCompletedOnboarding } from "./src/screens/OnboardingScreen";
 import PromptsSettingsScreen from "./src/screens/PromptsSettingsScreen";
+import VerifyProofScreen from "./src/screens/VerifyProofScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -116,6 +117,11 @@ function AppNavigator() {
               component={ResetPasswordScreen}
               options={{ headerShown: false }}
             />
+            <Stack.Screen
+              name="VerifyProof"
+              component={VerifyProofScreen}
+              options={{ title: "Verify Proof" }}
+            />
           </>
         ) : (
           // Main app screens
@@ -169,6 +175,11 @@ function AppNavigator() {
               name="PromptsSettings"
               component={PromptsSettingsScreen}
               options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="VerifyProof"
+              component={VerifyProofScreen}
+              options={{ title: "Verify Proof" }}
             />
           </>
         )}

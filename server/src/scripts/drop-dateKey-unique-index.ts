@@ -20,7 +20,6 @@ async function run() {
     const collection = Record.collection;
     try {
       await collection.dropIndex("dateKey_1");
-      console.log("✓ Dropped index dateKey_1 (was causing duplicate key errors per date).");
     } catch (err: any) {
       if (err.code === 27 || err.codeName === "IndexNotFound") {
         console.log("Index dateKey_1 not found (already dropped or never existed).");

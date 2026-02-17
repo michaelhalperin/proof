@@ -134,6 +134,16 @@ export default function LoginScreen() {
                 <Text style={styles.linkTextBold}>Sign Up</Text>
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.verifyProofButton, loading && styles.buttonDisabled]}
+              onPress={() => navigation.navigate("VerifyProof")}
+              disabled={loading}
+            >
+              <Text style={styles.verifyProofButtonText}>
+                Verify a proof — no account needed
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -211,6 +221,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     fontFamily: getFontFamily("semiBold"),
+  },
+  verifyProofButton: {
+    marginTop: 24,
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#1a7f37",
+    backgroundColor: "transparent",
+  },
+  verifyProofButtonText: {
+    fontSize: 15,
+    fontFamily: getFontFamily("semiBold"),
+    color: "#1a7f37",
   },
   linkButton: {
     marginTop: 20,

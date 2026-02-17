@@ -106,7 +106,7 @@ export function buildCanonicalRecord(
 }
 
 /**
- * Compute record hash from canonical record
+ * Compute record hash from canonical record (stable key order for consistency).
  */
 export async function computeRecordHash(
   dateKey: string,
@@ -116,6 +116,22 @@ export async function computeRecordHash(
 ): Promise<string> {
   const canonical = buildCanonicalRecord(dateKey, createdAt, note, photos);
   const jsonString = stableStringify(canonical);
+
+  return sha256Hex(jsonString);
+}
+
+/**
+ * Legacy: hash using JSON.stringify (natural key order: dateKey, createdAt, note, photos).
+ * Used when verifying old records that may have been created before stableStringify.
+ */
+export async function computeRecordHashLegacy(
+  dateKey: string,
+  createdAt: number,
+  note: string,
+  photos: PhotoHash[]
+): Promise<string> {
+  const canonical = buildCanonicalRecord(dateKey, createdAt, note, photos);
+  const jsonString = JSON.stringify(canonical);
   return sha256Hex(jsonString);
 }
 

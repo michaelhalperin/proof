@@ -210,6 +210,26 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Verify Proof - prominent entry */}
+        <TouchableOpacity
+          style={styles.verifyCard}
+          onPress={() => navigation.navigate("VerifyProof")}
+          activeOpacity={0.8}
+        >
+          <View style={styles.verifyCardLeft}>
+            <View style={styles.verifyIconWrap}>
+              <Ionicons name="shield-checkmark" size={24} color="#1a7f37" />
+            </View>
+            <View style={styles.verifyTextWrap}>
+              <Text style={styles.verifyCardTitle}>Verify Proof</Text>
+              <Text style={styles.verifyCardSubtitle}>
+                Check if a shared proof (PDF, note, photos) is legitimate
+              </Text>
+            </View>
+          </View>
+          <Ionicons name="chevron-forward" size={22} color="#999" />
+        </TouchableOpacity>
+
         {/* This Week at a Glance */}
         <View style={styles.weekStripContainer}>
           <Text style={styles.weekStripTitle}>This Week</Text>
@@ -353,6 +373,51 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 2,
+  },
+  verifyCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
+    padding: 16,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  verifyCardLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  verifyIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#e8f5e9",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  verifyTextWrap: {
+    flex: 1,
+  },
+  verifyCardTitle: {
+    fontSize: 17,
+    fontFamily: getFontFamily("semiBold"),
+    color: "#000",
+    marginBottom: 2,
+  },
+  verifyCardSubtitle: {
+    fontSize: 13,
+    fontFamily: getFontFamily("regular"),
+    color: "#666",
+    lineHeight: 18,
   },
   statusHeader: {
     flexDirection: "row",

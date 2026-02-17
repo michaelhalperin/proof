@@ -25,8 +25,6 @@ async function run() {
       { $set: { userId: USER_ID } }
     );
 
-    console.log(`✓ Updated ${result.modifiedCount} record(s) with userId: ${USER_ID}`);
-
     await disconnectDatabase();
   } catch (error: any) {
     console.error("Error:", error);

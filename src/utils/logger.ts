@@ -1,8 +1,3 @@
-/**
- * Structured logging utility for the Proof app
- * Replaces console.log/error/warn with structured logging
- */
-
 export enum LogLevel {
   DEBUG = 'DEBUG',
   INFO = 'INFO',
@@ -40,10 +35,10 @@ class Logger {
       data,
       error: error
         ? {
-            message: error.message,
-            stack: error.stack,
-            name: error.name,
-          }
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+        }
         : undefined,
     };
   }

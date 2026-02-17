@@ -31,12 +31,7 @@ import {
 import { getRecord, getPhotos, deleteRecord } from "../db/database";
 import { verifyRecordIntegrity } from "../utils/hashing";
 import { generatePDF } from "../utils/pdfExport";
-import {
-  sharePhoto,
-  sharePhotos,
-  shareText,
-  sharePDF,
-} from "../utils/shareUtils";
+import { sharePhotos, shareText, sharePDF } from "../utils/shareUtils";
 import { Record, Photo, togglePinnedRecord } from "../db/database";
 import { parseLocation } from "../utils/location";
 import * as FileSystem from "expo-file-system/legacy";
@@ -133,11 +128,10 @@ export default function DayDetailScreen() {
 
     if (Platform.OS === "ios") {
       const options: string[] = [];
-      if (photos.length > 0) {
+      if (photos.length === 1) {
+        options.push("Share Photo");
+      } else if (photos.length > 1) {
         options.push("Share Photos");
-        if (photos.length > 1) {
-          options.push("Share All Photos");
-        }
       }
       if (record.note) {
         options.push("Share Note");
@@ -163,17 +157,16 @@ export default function DayDetailScreen() {
         onPress?: () => void;
         style?: "cancel";
       }> = [];
-      if (photos.length > 0) {
+      if (photos.length === 1) {
+        alertOptions.push({
+          text: "Share Photo",
+          onPress: () => handleShareOption("Share Photo"),
+        });
+      } else if (photos.length > 1) {
         alertOptions.push({
           text: "Share Photos",
           onPress: () => handleShareOption("Share Photos"),
         });
-        if (photos.length > 1) {
-          alertOptions.push({
-            text: "Share All Photos",
-            onPress: () => handleShareOption("Share All Photos"),
-          });
-        }
       }
       if (record.note) {
         alertOptions.push({
@@ -196,13 +189,9 @@ export default function DayDetailScreen() {
 
     setExporting(true);
     try {
-      if (option === "Share Photos" && photos.length > 0) {
-        // Share first photo
-        await sharePhoto(photos[0].fileUri);
-      } else if (option === "Share All Photos" && photos.length > 0) {
-        // Share all photos (will share first one, then user can share others)
+      if ((option === "Share Photo" || option === "Share Photos") && photos.length > 0) {
         const photoUris = photos.map((p) => p.fileUri);
-        await sharePhotos(photoUris);
+        await sharePhotos(photoUris, record);
       } else if (option === "Share Note" && record.note) {
         await shareText(record.note, record);
       } else if (option === "Share as PDF") {
@@ -503,7 +492,7 @@ export default function DayDetailScreen() {
                             onPress: async () => {
                               setExporting(true);
                               try {
-                                await sharePhoto(photo.fileUri);
+                                await sharePhotos([photo.fileUri], record);
                               } catch (error) {
                                 console.error("Error sharing photo:", error);
                                 Alert.alert(
