@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import { getFontFamily } from "../config/theme";
+import { API_URL } from "../config/env";
 import {
   parseSharedNoteText,
   parseProofPdfText,
@@ -58,12 +59,42 @@ export default function VerifyProofScreen() {
       setPdfExtracting(true);
       let extractedText: string | null = null;
       try {
-        const { extractText, isAvailable } = require("expo-pdf-text-extract");
-        if (isAvailable?.()) {
-          extractedText = await extractText(file.uri);
+        const formData = new FormData();
+        // On React Native, file objects need uri, name, and type
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        formData.append("file", {
+          uri: file.uri,
+          name: file.name || "proof.pdf",
+          type: "application/pdf",
+        } as any);
+
+        const response = await fetch(`${API_URL}/verify/pdf`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          const errorJson = await response.json().catch(() => null);
+          const message =
+            errorJson?.error || "Could not read PDF. Try again or use Enter details.";
+          throw new Error(message);
         }
-      } catch {
-        // expo-pdf-text-extract not available (e.g. Expo Go) or failed
+
+        const json = (await response.json()) as { text?: string };
+        extractedText = json.text ?? null;
+      } catch (err) {
+        setPdfExtracting(false);
+        setResult({
+          valid: false,
+          error:
+            err instanceof Error
+              ? err.message
+              : "Could not read PDF. Use Enter details and copy Hash, Date, Timestamp from the file.",
+        });
+        return;
       }
       setPdfExtracting(false);
       if (!extractedText?.trim()) {
@@ -84,14 +115,26 @@ export default function VerifyProofScreen() {
       }
       setVerifying(true);
       try {
-        const { valid, computedHash } = await verifyProof(
-          parsed.dateKey,
-          parsed.createdAt,
+        const notesToTry = [
           parsed.note,
-          parsed.photos,
-          parsed.hash,
-        );
-        setResult({ valid, computedHash });
+          ...(parsed.noteCandidates || []).filter((n) => n !== parsed.note),
+        ];
+        let lastResult: { valid: boolean; computedHash?: string } = {
+          valid: false,
+          computedHash: undefined,
+        };
+        for (const note of notesToTry) {
+          const result = await verifyProof(
+            parsed.dateKey,
+            parsed.createdAt,
+            note,
+            parsed.photos,
+            parsed.hash,
+          );
+          lastResult = result;
+          if (result.valid) break;
+        }
+        setResult(lastResult);
       } catch (e) {
         setResult({
           valid: false,

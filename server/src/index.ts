@@ -5,6 +5,7 @@ import path from "path";
 import { connectDatabase } from "./config/database";
 import recordsRouter from "./routes/records";
 import authRouter from "./routes/auth";
+import verifyRouter from "./routes/verify";
 
 // Load .env from server directory first, then project root
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -29,6 +30,7 @@ app.get("/health", (req, res) => {
 // Routes
 app.use("/api/records", recordsRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/verify", verifyRouter);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

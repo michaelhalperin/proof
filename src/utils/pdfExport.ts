@@ -40,6 +40,23 @@ export async function generatePDF(
             line-height: 1.5;
             margin-bottom: 24px;
           }
+          .photos {
+            margin-top: 16px;
+            font-size: 11px;
+            color: #777;
+          }
+          .photos-title {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+            margin-bottom: 4px;
+          }
+          .photos-list {
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 10px;
+            white-space: pre-wrap;
+            word-break: break-all;
+          }
           .footer {
             margin-top: 32px;
             padding-top: 12px;
@@ -61,6 +78,24 @@ export async function generatePDF(
         ${
           photos.length > 0
             ? `<div style="margin: 20px 0;">${imagesHtml}</div>`
+            : ""
+        }
+
+        ${
+          photos.length > 0
+            ? `<div class="photos">
+                 <div class="photos-title">Photo hashes</div>
+                 <pre class="photos-list">
+${photos
+  .map(
+    (p) =>
+      `${escapeHtml(p.id)} ${escapeHtml(
+        p.mimeType || "image/jpeg"
+      )} ${escapeHtml(p.sha256)} ${p.sortIndex}`
+  )
+  .join("\n")}
+                 </pre>
+               </div>`
             : ""
         }
 

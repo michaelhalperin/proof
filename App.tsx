@@ -120,7 +120,10 @@ function AppNavigator() {
             <Stack.Screen
               name="VerifyProof"
               component={VerifyProofScreen}
-              options={{ title: "Verify Proof" }}
+              options={{
+                title: "Verify Proof",
+                headerBackTitle: "Back",
+              }}
             />
           </>
         ) : (
@@ -179,7 +182,10 @@ function AppNavigator() {
             <Stack.Screen
               name="VerifyProof"
               component={VerifyProofScreen}
-              options={{ title: "Verify Proof" }}
+              options={{
+                title: "Verify Proof",
+                headerBackTitle: "Back",
+              }}
             />
           </>
         )}

@@ -42,6 +42,8 @@ export interface ParsedProof {
   note: string;
   hash: string;
   photos: PhotoHash[];
+  /** Extra note variants to try when the primary note does not verify (e.g. PDF layout). */
+  noteCandidates?: string[];
 }
 
 /**
@@ -244,8 +246,10 @@ export function parseProofPdfText(text: string): ParsedProof | null {
   const raw = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   if (!raw.includes("Proof") || !raw.includes("Integrity")) return null;
 
-  const hashMatch = raw.match(/(?:Integrity\s+Hash|SHA-256)[^\w]*([a-fA-F0-9]{64})/);
-  const hash = hashMatch ? hashMatch[1].trim() : null;
+  // Hash may be split across lines (e.g. "5127d\n8f6"); allow optional whitespace
+  const hashMatch = raw.match(/(?:Integrity\s+Hash|SHA-256)[^\w]*([a-fA-F0-9\s]{64,})/);
+  const hashRaw = hashMatch ? hashMatch[1].replace(/\s/g, "").toLowerCase() : "";
+  const hash = hashRaw.length === 64 && /^[a-f0-9]{64}$/.test(hashRaw) ? hashRaw : null;
   if (!hash) return null;
 
   const tsMatch = raw.match(/Timestamp[^\d]*(\d{10,15})/);
@@ -260,13 +264,70 @@ export function parseProofPdfText(text: string): ParsedProof | null {
   if (noteSection && noteSection[1]) {
     note = noteSection[1].replace(/\s+/g, " ").trim();
   }
+  const noteCandidates: string[] = [];
+  // PDF export often has note as first content before the "Proof — DateKey ..." line (no "Note:" label)
+  if (!note) {
+    const proofStart = raw.search(/\bProof\s*[—·\-]\s*.*DateKey|Proof\s+.*Integrity\s+Hash/i);
+    if (proofStart > 0) {
+      const beforeProof = raw.slice(0, proofStart).trim();
+      const lines = beforeProof.split(/\n/).map((l) => l.trim()).filter(Boolean);
+      const isPageMarker = (l: string) => /^[—\-]+\s*\d+\s+of\s+\d+\s+[—\-]+$/.test(l);
+      // First line that isn't a page marker (e.g. "-- 1 of 3 --" or "— 1 of 3 —")
+      const firstLine = lines.find((l) => !isPageMarker(l));
+      if (firstLine) {
+        note = firstLine.replace(/\s+/g, " ").replace(/\uFEFF/g, "").trim();
+        // Try first line only; also try all non-marker lines joined (multi-line note)
+        noteCandidates.push(note);
+        const restLines = lines.filter((l) => !isPageMarker(l));
+        if (restLines.length > 1) {
+          noteCandidates.push(
+            restLines
+              .join("\n")
+              .replace(/\s+/g, " ")
+              .replace(/\uFEFF/g, "")
+              .trim()
+          );
+        }
+        noteCandidates.push(note + "\n");
+      } else {
+        note = beforeProof.replace(/\s+/g, " ").replace(/\uFEFF/g, "").trim();
+        if (note) noteCandidates.push(note);
+      }
+    }
+  }
+  // Try to extract photo hashes if present (e.g. from a "Photo hashes" section)
+  const photos: PhotoHash[] = [];
+  const lines = raw.split("\n").map((l) => l.trim());
+  const photosHeaderIndex = lines.findIndex((l) =>
+    /^Photo hashes/i.test(l)
+  );
+  if (photosHeaderIndex >= 0) {
+    for (let i = photosHeaderIndex + 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (!line) continue;
+      if (/^Proof\b/i.test(line)) break;
+      // Expected format (one per line): "<id> <mimeType> <sha256> <sortIndex>"
+      const parts = line.split(/\s+/);
+      if (parts.length < 4) continue;
+      const [id, mimeType, sha256, sortIndexStr] = parts;
+      const sortIndex = parseInt(sortIndexStr, 10);
+      if (!id || !sha256 || Number.isNaN(sortIndex)) continue;
+      photos.push({
+        id,
+        mimeType: mimeType || "image/jpeg",
+        sha256,
+        sortIndex,
+      });
+    }
+  }
 
   return {
     dateKey,
     createdAt,
     note,
     hash,
-    photos: [],
+    photos,
+    ...(noteCandidates.length > 0 ? { noteCandidates } : {}),
   };
 }
 

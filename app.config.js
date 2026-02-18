@@ -31,9 +31,10 @@ module.exports = {
     scheme: "proof",
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.proof.app",
+      bundleIdentifier: "com.michaelhalperin.proof",
       icon: "./assets/icon.png",
       infoPlist: {
+        ITSAppUsesNonExemptEncryption: false,
         NSCameraUsageDescription: "Proof needs camera access to take photos for your daily evidence log.",
         NSPhotoLibraryUsageDescription: "Proof needs photo library access to select photos for your daily evidence log.",
         NSLocationWhenInUseUsageDescription: "Proof needs location access to optionally tag your proof records with location data.",
@@ -47,7 +48,7 @@ module.exports = {
         foregroundImage: "./assets/android-adaptive-icon.png",
         backgroundColor: "#ffffff"
       },
-      package: "com.proof.app",
+      package: "com.michaelhalperin.proof",
       intentFilters: [
         {
           action: "VIEW",
