@@ -4,6 +4,7 @@ import { Share } from "react-native";
 import Constants from "expo-constants";
 import { generateImagesOnlyPDF, generateProofPhotosPDF } from "./pdfExport";
 import { encodeInvisibleProof } from "./invisibleProof";
+import { computeRecordHash } from "./hashing";
 import { Record, Photo } from "../db/database";
 
 const BASE64URL =
@@ -239,20 +240,29 @@ function formatHashForDisplay(hash: string): string {
  */
 export async function shareText(text: string, record: Record): Promise<void> {
   const note = text.trim();
+  // For text-based sharing, compute a hash that depends only on dateKey,
+  // createdAt, and the note text (photos are ignored). This ensures that
+  // paste-based verification works even when the original record had photos.
+  const noteOnlyHash = await computeRecordHash(
+    record.dateKey,
+    record.createdAt,
+    note,
+    []
+  );
   const invisible = encodeInvisibleProof(
     record.dateKey,
     record.createdAt,
-    record.recordHash
+    noteOnlyHash
   );
   const compactToken = encodeCompactProof(
     record.dateKey,
     record.createdAt,
-    record.recordHash
+    noteOnlyHash
   );
   const visibleLine =
     compactToken != null
       ? `✓ Proof · ${record.dateKey} · ${compactToken}`
-      : `✓ Proof · ${record.dateKey} · ${record.createdAt} · ${formatHashForDisplay(record.recordHash)}`;
+      : `✓ Proof · ${record.dateKey} · ${record.createdAt} · ${formatHashForDisplay(noteOnlyHash)}`;
   const shareContent = note
     ? `${note}${invisible}\n\n${visibleLine}`
     : invisible + "\n\n" + visibleLine;

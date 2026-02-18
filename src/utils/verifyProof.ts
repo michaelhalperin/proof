@@ -9,6 +9,11 @@ dayjs.extend(utc);
 const BASE64URL =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
+// Characters that some messaging apps insert but that should be ignored
+// when matching the visible "✓ Proof · ..." line (NOT removed before invisible decode).
+const ZERO_WIDTH_AND_CONTROL =
+  /[\u200B-\u200F\u202A-\u202E\u2060\u2061\u2062\u2063\uFEFF]/g;
+
 function decodeCompactProofToken(token: string): { createdAt: number; hash: string } | null {
   const clean = token.replace(/\s/g, "");
   const pad = (4 - (clean.length % 4)) % 4;
@@ -65,7 +70,18 @@ export function parseSharedNoteText(text: string): ParsedProof | null {
     };
   }
 
-  const lines = trimmed.split(/\n/);
+  // Normalize lines for visible formats:
+  // - keep original order
+  // - remove zero-width/control chars that some apps sprinkle into the text
+  //   (especially inside the compact token), so regex still matches
+  // - strip common quote/bullet prefixes (">", "•", "-" etc.)
+  // - trim trailing whitespace
+  const lines = trimmed.split(/\n/).map((rawLine) => {
+    const noZw = rawLine.replace(ZERO_WIDTH_AND_CONTROL, "");
+    return noZw
+      .replace(/^[>\u2022\u2023\u25E6\u2043\u2219\-\s"]+/, "")
+      .replace(/\s+$/, "");
+  });
 
   // Compact format: last line "✓ Proof · YYYY-MM-DD · <base64url token>"
   const compactMatch =
