@@ -4,7 +4,7 @@ module.exports = {
   expo: {
     name: "Proof",
     slug: "proof",
-    version: "1.0.0",
+    version: "1.1.0",
     orientation: "portrait",
     userInterfaceStyle: "light",
     extra: {
