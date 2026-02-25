@@ -120,7 +120,7 @@ export default function LogTodayScreen() {
                 existingPhotos.map((p) => ({
                   uri: p.fileUri,
                   id: p.id,
-                }))
+                })),
               );
               // Load tags (stored as JSON array string)
               if (existingRecord.tags) {
@@ -149,7 +149,7 @@ export default function LogTodayScreen() {
         }
       };
       loadExistingData();
-    }, [todayDateKey, navigation, isEditMode])
+    }, [todayDateKey, navigation, isEditMode]),
   );
 
   const requestPermissions = async () => {
@@ -161,7 +161,7 @@ export default function LogTodayScreen() {
     if (cameraStatus !== "granted" || libraryStatus !== "granted") {
       Alert.alert(
         "Permissions Required",
-        "Camera and photo library permissions are needed to add photos. You can still create a proof with just a note."
+        "Camera and photo library permissions are needed to add photos. You can still create a proof with just a note.",
       );
     }
   };
@@ -183,8 +183,8 @@ export default function LogTodayScreen() {
       if (status !== "granted") {
         Alert.alert(
           "Camera Permission Required",
-          "Proof needs camera access to take photos. Please grant camera permission in your device settings.",
-          [{ text: "OK" }]
+          "Prooffy needs camera access to take photos. Please grant camera permission in your device settings.",
+          [{ text: "OK" }],
         );
         return;
       }
@@ -204,7 +204,7 @@ export default function LogTodayScreen() {
       Alert.alert(
         "Camera Error",
         error?.message ||
-          "Failed to take photo. Please check camera permissions and try again."
+          "Failed to take photo. Please check camera permissions and try again.",
       );
     }
   };
@@ -223,8 +223,8 @@ export default function LogTodayScreen() {
       if (status !== "granted") {
         Alert.alert(
           "Photo Library Permission Required",
-          "Proof needs photo library access to select photos. Please grant photo library permission in your device settings.",
-          [{ text: "OK" }]
+          "Prooffy needs photo library access to select photos. Please grant photo library permission in your device settings.",
+          [{ text: "OK" }],
         );
         return;
       }
@@ -245,7 +245,7 @@ export default function LogTodayScreen() {
       Alert.alert(
         "Photo Library Error",
         error?.message ||
-          "Failed to select photo. Please check permissions and try again."
+          "Failed to select photo. Please check permissions and try again.",
       );
     }
   };
@@ -263,7 +263,7 @@ export default function LogTodayScreen() {
       } else {
         Alert.alert(
           "Location",
-          "Could not get your location. Please check location permissions."
+          "Could not get your location. Please check location permissions.",
         );
       }
     } catch (error: any) {
@@ -326,7 +326,7 @@ export default function LogTodayScreen() {
           if (!photos.find((p) => p.id === existingPhoto.id)) {
             try {
               const fileInfo = await FileSystem.getInfoAsync(
-                existingPhoto.fileUri
+                existingPhoto.fileUri,
               );
               if (fileInfo.exists) {
                 await FileSystem.deleteAsync(existingPhoto.fileUri, {
@@ -345,7 +345,7 @@ export default function LogTodayScreen() {
             // If photo already exists (has existing fileUri), use it
             if (existingPhotoIds.has(photo.id)) {
               const existingPhoto = existingPhotos.find(
-                (p) => p.id === photo.id
+                (p) => p.id === photo.id,
               );
               if (existingPhoto) {
                 return {
@@ -363,7 +363,7 @@ export default function LogTodayScreen() {
             const { fileUri, sha256 } = await copyPhotoToAppStorage(
               photo.uri,
               photo.id,
-              ext
+              ext,
             );
             return {
               id: photo.id,
@@ -372,7 +372,7 @@ export default function LogTodayScreen() {
               sortIndex: index,
               fileUri,
             };
-          })
+          }),
         );
 
         // Build canonical photos array for hashing
@@ -382,7 +382,7 @@ export default function LogTodayScreen() {
             mimeType,
             sha256,
             sortIndex,
-          })
+          }),
         );
 
         // Use original createdAt for hash computation
@@ -393,7 +393,7 @@ export default function LogTodayScreen() {
           todayDateKey,
           createdAt,
           note.trim(),
-          canonicalPhotos
+          canonicalPhotos,
         );
 
         // Process tags (already an array)
@@ -408,7 +408,8 @@ export default function LogTodayScreen() {
             recordHash,
             algo: "SHA-256",
             tags: tagsJson,
-            ...(location !== null && { location: location as string }),
+            // Explicitly send null when location was removed so backend clears it
+            location: location ?? null,
           },
           photoHashes.map(({ id, fileUri, mimeType, sha256, sortIndex }) => ({
             id,
@@ -417,7 +418,7 @@ export default function LogTodayScreen() {
             mimeType,
             sha256,
             sortIndex,
-          }))
+          })),
         );
 
         // After updating, go back to DayDetail (use goBack if coming from edit, otherwise replace)
@@ -444,7 +445,7 @@ export default function LogTodayScreen() {
             const { fileUri, sha256 } = await copyPhotoToAppStorage(
               photo.uri,
               photo.id,
-              ext
+              ext,
             );
             return {
               id: photo.id,
@@ -453,7 +454,7 @@ export default function LogTodayScreen() {
               sortIndex: index,
               fileUri,
             };
-          })
+          }),
         );
 
         // Build canonical photos array for hashing
@@ -463,7 +464,7 @@ export default function LogTodayScreen() {
             mimeType,
             sha256,
             sortIndex,
-          })
+          }),
         );
 
         // Compute record hash from the same note we store (trimmed)
@@ -471,7 +472,7 @@ export default function LogTodayScreen() {
           todayDateKey,
           createdAt,
           note.trim(),
-          canonicalPhotos
+          canonicalPhotos,
         );
 
         // Process tags (already an array)
@@ -495,7 +496,7 @@ export default function LogTodayScreen() {
             mimeType,
             sha256,
             sortIndex,
-          }))
+          })),
         );
 
         navigation.replace("DayDetail", { dateKey: todayDateKey });
@@ -585,37 +586,18 @@ export default function LogTodayScreen() {
         <View style={styles.predefinedTagsContainer}>
           <Text style={styles.predefinedTagsLabel}>Common Tags</Text>
           <View style={styles.predefinedTagsGrid}>
-            {predefinedTags.map((tag) => {
-              const isSelected = tags.includes(tag);
-              return (
+            {predefinedTags
+              .filter((tag) => !tags.includes(tag))
+              .map((tag) => (
                 <TouchableOpacity
                   key={tag}
-                  style={[
-                    styles.predefinedTag,
-                    isSelected && styles.predefinedTagSelected,
-                  ]}
+                  style={styles.predefinedTag}
                   onPress={() => handleToggleTag(tag)}
                   activeOpacity={0.7}
                 >
-                  <Text
-                    style={[
-                      styles.predefinedTagText,
-                      isSelected && styles.predefinedTagTextSelected,
-                    ]}
-                  >
-                    {tag}
-                  </Text>
-                  {isSelected && (
-                    <Ionicons
-                      name="checkmark"
-                      size={16}
-                      color="#fff"
-                      style={styles.tagCheckIcon}
-                    />
-                  )}
+                  <Text style={styles.predefinedTagText}>{tag}</Text>
                 </TouchableOpacity>
-              );
-            })}
+              ))}
           </View>
         </View>
 
@@ -655,7 +637,7 @@ export default function LogTodayScreen() {
                     <Text style={styles.locationText} numberOfLines={2}>
                       {loc.address ||
                         `${loc.latitude.toFixed(4)}, ${loc.longitude.toFixed(
-                          4
+                          4,
                         )}`}
                     </Text>
                   </>
@@ -735,7 +717,7 @@ export default function LogTodayScreen() {
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.saveButtonText}>
-              {isEditMode ? "Update Proof" : "Save Proof"}
+              {isEditMode ? "Update Prooffy" : "Save Prooffy"}
             </Text>
           )}
         </TouchableOpacity>

@@ -100,7 +100,7 @@ ${photos
         }
 
         <div class="footer">
-          Proof — DateKey ${record.dateKey} · Timestamp ${record.createdAt} · Integrity Hash ${record.recordHash}
+          Prooffy — DateKey ${record.dateKey} · Timestamp ${record.createdAt} · Integrity Hash ${record.recordHash}
         </div>
       </body>
     </html>
@@ -149,7 +149,7 @@ export async function generateImagesOnlyPDF(
 
 /**
  * Generate a proof PDF: record metadata (date, created, integrity hash) + images.
- * Makes the shared file verifiable as a Proof record.
+ * Makes the shared file verifiable as a Prooffy record.
  */
 export async function generateProofPhotosPDF(
   photoUris: string[],
@@ -169,7 +169,7 @@ export async function generateProofPhotosPDF(
       <body>
         <div style="margin: 20px 0;">${imagesHtml}</div>
         <div class="footer">
-          Proof — DateKey ${record.dateKey} · Timestamp ${record.createdAt} · Integrity Hash ${record.recordHash}
+          Prooffy — DateKey ${record.dateKey} · Timestamp ${record.createdAt} · Integrity Hash ${record.recordHash}
         </div>
       </body>
     </html>

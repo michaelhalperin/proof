@@ -30,18 +30,24 @@ import AboutScreen from "./src/screens/AboutScreen";
 import PrivacyScreen from "./src/screens/PrivacyScreen";
 import TermsOfServiceScreen from "./src/screens/TermsOfServiceScreen";
 import ContactScreen from "./src/screens/ContactScreen";
+import FeatureRequestsScreen from "./src/screens/FeatureRequestsScreen";
 import ChangePasswordScreen from "./src/screens/ChangePasswordScreen";
 import HelpScreen from "./src/screens/HelpScreen";
-import OnboardingScreen, { hasCompletedOnboarding } from "./src/screens/OnboardingScreen";
+import OnboardingScreen, {
+  hasCompletedOnboarding,
+} from "./src/screens/OnboardingScreen";
 import PromptsSettingsScreen from "./src/screens/PromptsSettingsScreen";
 import VerifyProofScreen from "./src/screens/VerifyProofScreen";
+import FeedbackScreen from "./src/screens/FeedbackScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
   const navigationRef = React.useRef<any>(null);
-  const [showOnboarding, setShowOnboarding] = React.useState<boolean | null>(null);
+  const [showOnboarding, setShowOnboarding] = React.useState<boolean | null>(
+    null,
+  );
 
   React.useEffect(() => {
     // Check if user has completed onboarding
@@ -121,7 +127,7 @@ function AppNavigator() {
               name="VerifyProof"
               component={VerifyProofScreen}
               options={{
-                title: "Verify Proof",
+                title: "Verify Prooffy",
                 headerBackTitle: "Back",
               }}
             />
@@ -165,6 +171,16 @@ function AppNavigator() {
               options={{ headerShown: false }}
             />
             <Stack.Screen
+              name="Feedback"
+              component={FeedbackScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="FeatureRequests"
+              component={FeatureRequestsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
               name="ChangePassword"
               component={ChangePasswordScreen}
               options={{ headerShown: false }}
@@ -183,7 +199,7 @@ function AppNavigator() {
               name="VerifyProof"
               component={VerifyProofScreen}
               options={{
-                title: "Verify Proof",
+                title: "Verify Prooffy",
                 headerBackTitle: "Back",
               }}
             />
@@ -210,7 +226,11 @@ export default function App() {
         setFontsLoaded(true);
         logInfo("Fonts loaded successfully");
       } catch (error) {
-        logError("Failed to load fonts", {}, error instanceof Error ? error : new Error(String(error)));
+        logError(
+          "Failed to load fonts",
+          {},
+          error instanceof Error ? error : new Error(String(error)),
+        );
         setFontsLoaded(true); // Continue even if fonts fail to load
       }
     }

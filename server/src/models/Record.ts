@@ -4,7 +4,7 @@ export interface IRecord extends Document {
   userId: string;
   dateKey: string;
   createdAt: number;
-  note: string;
+  note?: string;
   recordHash: string;
   algo: string;
   tags?: string;
@@ -35,7 +35,7 @@ const RecordSchema = new Schema<IRecord>({
   userId: { type: String, required: true, index: true },
   dateKey: { type: String, required: true, index: true },
   createdAt: { type: Number, required: true, index: true },
-  note: { type: String, required: true },
+  note: { type: String },
   recordHash: { type: String, required: true },
   algo: { type: String, required: true },
   tags: { type: String },

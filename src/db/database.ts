@@ -7,7 +7,7 @@ export interface Record {
   recordHash: string;
   algo: string;
   tags?: string; // JSON array of tags
-  location?: string; // JSON object with lat, lng, address
+  location?: string | null; // JSON object with lat, lng, address
   pinned?: boolean | number; // Can be boolean or number for compatibility
 }
 

@@ -1,6 +1,6 @@
-# Proof Backend Server
+# Prooffy Backend Server
 
-Backend API server for the Proof app using Express and MongoDB Atlas.
+Backend API server for the Prooffy app using Express and MongoDB Atlas.
 
 ## Setup
 

@@ -18,6 +18,7 @@ import { getAllRecords } from "../db/database";
 import { Record } from "../db/database";
 import { parseLocation, LocationData } from "../utils/location";
 import { formatDateKey } from "../utils/dateUtils";
+import { getFontFamily } from "../config/theme";
 
 type MapViewScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -186,6 +187,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     textAlign: "center",
+    fontFamily: getFontFamily("regular"),
   },
   emptyContainer: {
     flex: 1,
@@ -199,12 +201,15 @@ const styles = StyleSheet.create({
     color: "#000",
     marginTop: 16,
     marginBottom: 8,
+    fontFamily: getFontFamily("semiBold"),
   },
   emptyText: {
     fontSize: 16,
     color: "#666",
     textAlign: "center",
     marginBottom: 24,
+    fontFamily: getFontFamily("regular"),
+    lineHeight: 20,
   },
   refreshButton: {
     backgroundColor: "#000",
@@ -216,6 +221,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+    fontFamily: getFontFamily("semiBold"),
   },
   infoContainer: {
     position: "absolute",
@@ -232,30 +238,35 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
     gap: 8,
   },
   infoText: {
     fontSize: 14,
     fontWeight: "500",
     color: "#000",
+    fontFamily: getFontFamily("medium"),
   },
   refreshButtonSmall: {
     backgroundColor: "#fff",
     width: 44,
     height: 44,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
 });

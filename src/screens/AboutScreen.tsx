@@ -25,16 +25,16 @@ export default function AboutScreen() {
       <View style={styles.content}>
         <View style={styles.header}>
           <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>Proof</Text>
+            <Text style={styles.logoText}>Prooffy</Text>
           </View>
           <Text style={styles.version}>Version 1.0.0</Text>
           <Text style={styles.tagline}>Offline-first evidence logging</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>What is Proof?</Text>
+          <Text style={styles.sectionTitle}>What is Prooffy?</Text>
           <Text style={styles.sectionText}>
-            Proof is a privacy-first, offline evidence logging app that helps
+            Prooffy is a privacy-first, offline evidence logging app that helps
             you create tamper-evident records of your daily activities. Each
             record includes photos, notes, timestamps, and cryptographic hashes
             to verify integrity.
@@ -49,7 +49,7 @@ export default function AboutScreen() {
             </View>
             <Text style={styles.featureText}>
               Your data stays on this device. No accounts, no cloud, no network
-              required. Proof is completely offline-first and gives you complete
+              required. Prooffy is completely offline-first and gives you complete
               control over your records.
             </Text>
           </View>

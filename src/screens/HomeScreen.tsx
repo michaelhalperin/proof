@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -32,6 +33,11 @@ import {
 } from "../db/database";
 import { Record } from "../db/database";
 import { getFontFamily } from "../config/theme";
+import { addProofToDeviceCalendar } from "../utils/addProofToCalendar";
+import {
+  getCalendarExportDateKey,
+  setCalendarExportDateKey,
+} from "../utils/preferences";
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<TabParamList, "Home">,
@@ -55,7 +61,38 @@ export default function HomeScreen() {
   const [pinnedRecords, setPinnedRecords] = useState<Record[]>([]);
   const [weekStatus, setWeekStatus] = useState<WeekDayStatus[]>([]);
   const [homePrompt, setHomePrompt] = useState<string | null>(null);
+  const [typedHomePrompt, setTypedHomePrompt] = useState<string>("");
+  const [exportingCalendar, setExportingCalendar] = useState(false);
+  const [calendarAddedForToday, setCalendarAddedForToday] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (!homePrompt) {
+      setTypedHomePrompt("");
+      return;
+    }
+
+    setTypedHomePrompt("");
+
+    const interval = setInterval(() => {
+      setTypedHomePrompt((current) => {
+        if (!homePrompt) {
+          return "";
+        }
+
+        if (current.length >= homePrompt.length) {
+          clearInterval(interval);
+          return current;
+        }
+
+        return homePrompt.slice(0, current.length + 1);
+      });
+    }, 35);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [homePrompt]);
 
   const loadData = async () => {
     try {
@@ -67,6 +104,10 @@ export default function HomeScreen() {
         const photos = await getPhotos(todayDateKey);
         setTodayRecord(record);
         setPhotoCount(photos.length);
+        const exportedDateKey = await getCalendarExportDateKey();
+        setCalendarAddedForToday(exportedDateKey === todayDateKey);
+      } else {
+        setCalendarAddedForToday(false);
       }
 
       const allRecords = await getAllRecords();
@@ -118,6 +159,25 @@ export default function HomeScreen() {
     }
   };
 
+  const handleExportTodayToCalendar = async () => {
+    if (!todayRecord || calendarAddedForToday) return;
+    setExportingCalendar(true);
+    try {
+      await addProofToDeviceCalendar(todayDateKey, todayRecord);
+      await setCalendarExportDateKey(todayDateKey);
+      setCalendarAddedForToday(true);
+      Alert.alert("Added to Calendar", "Today's proof was added as an all-day event to your calendar.");
+    } catch (error: any) {
+      console.error("Add to calendar:", error);
+      Alert.alert(
+        "Couldn't Add to Calendar",
+        error?.message || "Calendar access was denied or something went wrong. You can enable calendar access in Settings."
+      );
+    } finally {
+      setExportingCalendar(false);
+    }
+  };
+
   if (loading) {
     return (
       <View style={[styles.container, { paddingTop: insets.top + 20 }]}>
@@ -152,7 +212,7 @@ export default function HomeScreen() {
             />
             <View style={styles.statusTextContainer}>
               <Text style={styles.statusTitle}>
-                {isLogged ? "Proof Logged" : "No Proof Yet"}
+                {isLogged ? "Prooffy Logged" : "No Prooffy Yet"}
               </Text>
               {isLogged ? (
                 <Text style={styles.statusSubtitle}>
@@ -163,12 +223,12 @@ export default function HomeScreen() {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}`
-                    : "Proof logged for today"}
+                    : "Prooffy logged for today"}
                 </Text>
               ) : (
                 <Text style={styles.statusSubtitle}>
                   {homePrompt
-                    ? homePrompt
+                    ? typedHomePrompt
                     : "Add a short note or a photo you might need later."}
                 </Text>
               )}
@@ -209,12 +269,41 @@ export default function HomeScreen() {
               style={styles.buttonIcon}
             />
             <Text style={styles.primaryButtonText}>
-              {isLogged ? "View Today's Proof" : "Log Today"}
+              {isLogged ? "View Today's Prooffy" : "Log Today"}
             </Text>
           </TouchableOpacity>
+
+          {isLogged && todayRecord && (
+            calendarAddedForToday ? (
+              <View style={styles.exportCalendarAdded}>
+                <Ionicons name="checkmark-circle" size={18} color="#34C759" />
+                <Text style={styles.exportCalendarAddedText}>
+                  Added to Calendar
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.exportCalendarButton}
+                onPress={handleExportTodayToCalendar}
+                disabled={exportingCalendar}
+                activeOpacity={0.7}
+              >
+                {exportingCalendar ? (
+                  <ActivityIndicator size="small" color="#666" />
+                ) : (
+                  <>
+                    <Ionicons name="calendar-outline" size={18} color="#666" />
+                    <Text style={styles.exportCalendarText}>
+                      Add today to Calendar
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )
+          )}
         </View>
 
-        {/* Verify Proof - prominent entry */}
+        {/* Verify Prooffy - prominent entry */}
         <TouchableOpacity
           style={styles.verifyCard}
           onPress={() => navigation.navigate("VerifyProof")}
@@ -225,7 +314,7 @@ export default function HomeScreen() {
               <Ionicons name="shield-checkmark" size={24} color="#1a7f37" />
             </View>
             <View style={styles.verifyTextWrap}>
-              <Text style={styles.verifyCardTitle}>Verify Proof</Text>
+              <Text style={styles.verifyCardTitle}>Verify Prooffy</Text>
               <Text style={styles.verifyCardSubtitle}>
                 Check if a shared proof (PDF, note, photos) is legitimate
               </Text>
@@ -493,6 +582,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     fontFamily: getFontFamily("semiBold"),
+  },
+  exportCalendarButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
+    paddingVertical: 10,
+    gap: 6,
+  },
+  exportCalendarText: {
+    fontSize: 14,
+    fontFamily: getFontFamily("medium"),
+    color: "#666",
+  },
+  exportCalendarAdded: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 12,
+    paddingVertical: 10,
+    gap: 6,
+  },
+  exportCalendarAddedText: {
+    fontSize: 14,
+    fontFamily: getFontFamily("medium"),
+    color: "#34C759",
   },
   statsContainer: {
     flexDirection: "row",

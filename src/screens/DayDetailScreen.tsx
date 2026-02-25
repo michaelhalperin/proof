@@ -64,7 +64,7 @@ export default function DayDetailScreen() {
       const loadedPhotos = await getPhotos(dateKey);
 
       if (!loadedRecord) {
-        Alert.alert("Not Found", "Proof record not found for this date.");
+        Alert.alert("Not Found", "Prooffy record not found for this date.");
         navigation.goBack();
         return;
       }
@@ -171,7 +171,7 @@ export default function DayDetailScreen() {
       });
       alertOptions.push({ text: "Cancel", style: "cancel" });
 
-      Alert.alert("Share Proof", "Choose how to share", alertOptions);
+      Alert.alert("Share Prooffy", "Choose how to share", alertOptions);
     }
   };
 
@@ -218,7 +218,7 @@ export default function DayDetailScreen() {
 
   const handleDelete = () => {
     Alert.alert(
-      "Delete Proof",
+      "Delete Prooffy",
       "Are you sure you want to delete today's proof? This action cannot be undone.",
       [
         {
@@ -248,7 +248,7 @@ export default function DayDetailScreen() {
               // Delete from database
               await deleteRecord(dateKey);
 
-              Alert.alert("Success", "Proof deleted successfully.", [
+              Alert.alert("Success", "Prooffy deleted successfully.", [
                 {
                   text: "OK",
                   onPress: () => {

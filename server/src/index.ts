@@ -6,6 +6,7 @@ import { connectDatabase } from "./config/database";
 import recordsRouter from "./routes/records";
 import authRouter from "./routes/auth";
 import verifyRouter from "./routes/verify";
+import featureRequestsRouter from "./routes/featureRequests";
 
 // Load .env from server directory first, then project root
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -31,6 +32,7 @@ app.get("/health", (req, res) => {
 app.use("/api/records", recordsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/verify", verifyRouter);
+app.use("/api/feature-requests", featureRequestsRouter);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -42,7 +44,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 async function startServer() {
   try {
     await connectDatabase();
-    
+
     app.listen(PORT, () => {
       console.log(`✓ Server running on port ${PORT}`);
       console.log(`✓ Health check: http://localhost:${PORT}/health`);

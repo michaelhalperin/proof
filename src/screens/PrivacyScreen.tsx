@@ -30,17 +30,17 @@ export default function PrivacyScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionText}>
-            At Proof, we are committed to protecting your privacy and giving you clear,
+            At Prooffy, we are committed to protecting your privacy and giving you clear,
             understandable information about how your data is handled. This Privacy Policy
             explains what we collect, how we use it, and the choices you have when using
-            the Proof app.
+            the Prooffy app.
           </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Information We Collect</Text>
           <Text style={styles.sectionText}>
-            Proof collects only the data needed to provide the service and let you
+            Prooffy collects only the data needed to provide the service and let you
             capture and verify your records.
           </Text>
           <Text style={styles.sectionText}>
@@ -52,7 +52,7 @@ export default function PrivacyScreen() {
               address and name you provide when you create an account.
             </Text>
             <Text style={styles.listItem}>
-              • <Text style={styles.bold}>Proof records</Text> – notes, timestamps,
+              • <Text style={styles.bold}>Prooffy records</Text> – notes, timestamps,
               cryptographic hashes, and other metadata required to create and verify your
               proofs. Photos you attach to a proof may be stored on your device and/or
               in secure storage depending on how you use the app.
@@ -60,7 +60,7 @@ export default function PrivacyScreen() {
             <Text style={styles.listItem}>
               • <Text style={styles.bold}>Technical information</Text> – limited
               diagnostic and analytics information (such as crash logs or basic usage
-              data) to keep Proof reliable and secure.
+              data) to keep Prooffy reliable and secure.
             </Text>
           </View>
         </View>
@@ -71,7 +71,7 @@ export default function PrivacyScreen() {
             We use the information described above only to:
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Provide core Proof functionality and keep your records available to you</Text>
+            <Text style={styles.listItem}>• Provide core Prooffy functionality and keep your records available to you</Text>
             <Text style={styles.listItem}>• Help you create, export, and verify proofs</Text>
             <Text style={styles.listItem}>• Maintain and improve the reliability, performance, and security of the app</Text>
             <Text style={styles.listItem}>• Send essential account-related emails such as verification and password reset messages</Text>
@@ -81,7 +81,7 @@ export default function PrivacyScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>3. Data Storage</Text>
           <Text style={styles.sectionText}>
-            Proof stores your data using a combination of secure cloud infrastructure and
+            Prooffy stores your data using a combination of secure cloud infrastructure and
             local storage on your device.
           </Text>
           <View style={styles.listContainer}>
@@ -120,7 +120,7 @@ export default function PrivacyScreen() {
           </View>
           <Text style={styles.sectionText}>
             These providers are only allowed to use your data to perform services for
-            Proof and must protect it appropriately. We do not allow third parties to
+            Prooffy and must protect it appropriately. We do not allow third parties to
             use your personal data for their own marketing.
           </Text>
         </View>
@@ -128,7 +128,7 @@ export default function PrivacyScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>5. Permissions</Text>
           <Text style={styles.sectionText}>
-            Proof may request the following device permissions:
+            Prooffy may request the following device permissions:
           </Text>
           <View style={styles.listContainer}>
             <Text style={styles.listItem}>• Camera – to take photos for proof records (optional)</Text>
@@ -184,7 +184,7 @@ export default function PrivacyScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>8. Children's Privacy</Text>
           <Text style={styles.sectionText}>
-            Proof is not intended for children under the age of 13. We do not knowingly
+            Prooffy is not intended for children under the age of 13. We do not knowingly
             collect personal information from children under 13. If you believe that a
             child has provided us with personal information, please contact us and we
             will take appropriate steps to address the issue.
@@ -201,7 +201,7 @@ export default function PrivacyScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>10. Contact Us</Text>
           <Text style={styles.sectionText}>
-            If you have any questions about this Privacy Policy or how Proof handles your
+            If you have any questions about this Privacy Policy or how Prooffy handles your
             data, please reach out using the contact options provided in the Contact
             screen within the app.
           </Text>
@@ -209,7 +209,7 @@ export default function PrivacyScreen() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Your privacy is fundamental to Proof. We collect only what we need to run the
+            Your privacy is fundamental to Prooffy. We collect only what we need to run the
             service and help you capture and verify trustworthy records.
           </Text>
         </View>

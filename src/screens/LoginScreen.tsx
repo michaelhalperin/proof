@@ -71,7 +71,7 @@ export default function LoginScreen() {
         ]}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>Proof</Text>
+          <Text style={styles.title}>Prooffy</Text>
           <Text style={styles.subtitle}>Sign in to continue</Text>
 
           <View style={styles.form}>

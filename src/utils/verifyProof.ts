@@ -10,7 +10,7 @@ const BASE64URL =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
 // Characters that some messaging apps insert but that should be ignored
-// when matching the visible "✓ Proof · ..." line (NOT removed before invisible decode).
+// when matching the visible "✓ Prooffy · ..." line (NOT removed before invisible decode).
 const ZERO_WIDTH_AND_CONTROL =
   /[\u200B-\u200F\u202A-\u202E\u2060\u2061\u2062\u2063\uFEFF]/g;
 
@@ -53,7 +53,7 @@ export interface ParsedProof {
 
 /**
  * Parse shared note text (from Share Note) into proof fields.
- * Supports: (1) invisible embedded proof (note only visible), (2) minimal "note\n\ndateKey timestamp hash", (3) legacy with Proof/DateKey:/Timestamp:/Hash:
+ * Supports: (1) invisible embedded proof (note only visible), (2) minimal "note\n\ndateKey timestamp hash", (3) legacy with Prooffy/DateKey:/Timestamp:/Hash:
  */
 export function parseSharedNoteText(text: string): ParsedProof | null {
   const trimmed = text.trim();
@@ -83,11 +83,11 @@ export function parseSharedNoteText(text: string): ParsedProof | null {
       .replace(/\s+$/, "");
   });
 
-  // Compact format: last line "✓ Proof · YYYY-MM-DD · <base64url token>"
+  // Compact format: last line "✓ Prooffy · YYYY-MM-DD · <base64url token>"
   const compactMatch =
     lines.length > 0 &&
     lines[lines.length - 1].match(
-      /^✓\s*Proof\s*·\s*(\d{4}-\d{2}-\d{2})\s*·\s*([A-Za-z0-9_-]+)\s*$/
+      /^✓\s*Prooffy\s*·\s*(\d{4}-\d{2}-\d{2})\s*·\s*([A-Za-z0-9_-]+)\s*$/
     );
   if (compactMatch) {
     const decoded = decodeCompactProofToken(compactMatch[2]);
@@ -103,11 +103,11 @@ export function parseSharedNoteText(text: string): ParsedProof | null {
     }
   }
 
-  // Friendly format: last line "✓ Proof · YYYY-MM-DD · timestamp · hash-with-dashes"
+  // Friendly format: last line "✓ Prooffy · YYYY-MM-DD · timestamp · hash-with-dashes"
   const friendlyMatch =
     lines.length > 0 &&
     lines[lines.length - 1].match(
-      /^✓\s*Proof\s*·\s*(\d{4}-\d{2}-\d{2})\s*·\s*(\d{10,15})\s*·\s*([a-fA-F0-9\-]+)\s*$/
+      /^✓\s*Prooffy\s*·\s*(\d{4}-\d{2}-\d{2})\s*·\s*(\d{10,15})\s*·\s*([a-fA-F0-9\-]+)\s*$/
     );
   if (friendlyMatch) {
     const dateKey = friendlyMatch[1];
@@ -144,8 +144,8 @@ export function parseSharedNoteText(text: string): ParsedProof | null {
     };
   }
 
-  // Legacy format: must contain "Proof" and "Hash:"
-  if (!trimmed.includes("Proof") || !trimmed.includes("Hash:")) {
+  // Legacy format: must contain "Prooffy" and "Hash:"
+  if (!trimmed.includes("Prooffy") || !trimmed.includes("Hash:")) {
     return null;
   }
 
@@ -170,7 +170,7 @@ export function parseSharedNoteText(text: string): ParsedProof | null {
   const isNoteFirst =
     firstBlock.length > 0 &&
     !firstBlock.includes("DateKey:") &&
-    !firstBlock.includes("Proof Record");
+    !firstBlock.includes("Prooffy Record");
   const noteRaw = isNoteFirst ? firstBlock : parts.length >= 3 ? parts[2] : "";
   const note = noteRaw.trim();
 
@@ -255,12 +255,12 @@ export async function verifyProof(
 }
 
 /**
- * Parse text extracted from a Proof PDF (from Share as PDF or Share Photos PDF).
+ * Parse text extracted from a Prooffy PDF (from Share as PDF or Share Photos PDF).
  * Looks for Date, Created, Integrity Hash, Timestamp, and optional Note.
  */
 export function parseProofPdfText(text: string): ParsedProof | null {
   const raw = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
-  if (!raw.includes("Proof") || !raw.includes("Integrity")) return null;
+  if (!raw.includes("Prooffy") || !raw.includes("Integrity")) return null;
 
   // Hash may be split across lines (e.g. "5127d\n8f6"); allow optional whitespace
   const hashMatch = raw.match(/(?:Integrity\s+Hash|SHA-256)[^\w]*([a-fA-F0-9\s]{64,})/);
@@ -281,9 +281,9 @@ export function parseProofPdfText(text: string): ParsedProof | null {
     note = noteSection[1].replace(/\s+/g, " ").trim();
   }
   const noteCandidates: string[] = [];
-  // PDF export often has note as first content before the "Proof — DateKey ..." line (no "Note:" label)
+  // PDF export often has note as first content before the "Prooffy — DateKey ..." line (no "Note:" label)
   if (!note) {
-    const proofStart = raw.search(/\bProof\s*[—·\-]\s*.*DateKey|Proof\s+.*Integrity\s+Hash/i);
+    const proofStart = raw.search(/\bProof\s*[—·\-]\s*.*DateKey|Prooffy\s+.*Integrity\s+Hash/i);
     if (proofStart > 0) {
       const beforeProof = raw.slice(0, proofStart).trim();
       const lines = beforeProof.split(/\n/).map((l) => l.trim()).filter(Boolean);
@@ -321,7 +321,7 @@ export function parseProofPdfText(text: string): ParsedProof | null {
     for (let i = photosHeaderIndex + 1; i < lines.length; i++) {
       const line = lines[i];
       if (!line) continue;
-      if (/^Proof\b/i.test(line)) break;
+      if (/^Prooffy\b/i.test(line)) break;
       // Expected format (one per line): "<id> <mimeType> <sha256> <sortIndex>"
       const parts = line.split(/\s+/);
       if (parts.length < 4) continue;

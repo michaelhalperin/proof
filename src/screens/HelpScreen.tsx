@@ -21,9 +21,9 @@ interface FAQItem {
 
 const FAQ_DATA: FAQItem[] = [
   {
-    question: 'What is Proof?',
+    question: 'What is Prooffy?',
     answer:
-      'Proof lets you capture trustworthy records of what happened and when, using notes, photos, timestamps, and cryptographic fingerprints that can be verified later. Your proof records are stored securely in the cloud and tied to your account, so you can sign in on a new device and access your existing proofs.',
+      'Prooffy lets you capture trustworthy records of what happened and when, using notes, photos, timestamps, and cryptographic fingerprints that can be verified later. Your proof records are stored securely in the cloud and tied to your account, so you can sign in on a new device and access your existing proofs.',
   },
   {
     question: 'How does tamper-evidence work?',
@@ -33,17 +33,17 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: 'Can I edit or delete past records?',
     answer:
-      'Proof is designed so that records are not casually editable or deletable, which helps preserve their evidentiary value. In most cases, you can only edit or delete today\'s record from within the app; older records are treated as immutable. Device- or system-level tools may still remove data, and we can\'t guarantee that third parties will always treat your records as immutable.',
+      'Prooffy is designed so that records are not casually editable or deletable, which helps preserve their evidentiary value. In most cases, you can only edit or delete today\'s record from within the app; older records are treated as immutable. Device- or system-level tools may still remove data, and we can\'t guarantee that third parties will always treat your records as immutable.',
   },
   {
     question: 'How do I export my proof records?',
     answer:
-      'You can export any proof record as a PDF by opening the record detail screen and tapping the "Export PDF" button. The PDF includes your notes, timestamps, integrity data, and any photos that are available. You can also share a proof as text for quick messaging, or use the Verify tab to check shared notes and PDFs that were created in Proof.',
+      'You can export any proof record as a PDF by opening the record detail screen and tapping the "Export PDF" button. The PDF includes your notes, timestamps, integrity data, and any photos that are available. You can also share a proof as text for quick messaging, or use the Verify tab to check shared notes and PDFs that were created in Prooffy.',
   },
   {
     question: 'Is my data backed up?',
     answer:
-      'Your proof records are stored in the Proof backend and linked to your account, so you can sign in on a new device and access your existing proofs. For extra safety, you can also use the "Export All Data" option in Settings to generate a PDF containing all of your records and store it in a secure location you control.',
+      'Your proof records are stored in the Prooffy backend and linked to your account, so you can sign in on a new device and access your existing proofs. For extra safety, you can also use the "Export All Data" option in Settings to generate a PDF containing all of your records and store it in a secure location you control.',
   },
   {
     question: 'How do I use tags?',
@@ -53,7 +53,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: 'What happens if I lose my device?',
     answer:
-      'Because your records are tied to your Proof account, you can install the app on a new device, sign in, and access your existing proofs. Local copies of some photos on a specific device may not be available if those image files were removed from that device, so it\'s still a good idea to keep your own backups of especially important exports.',
+      'Because your records are tied to your Prooffy account, you can install the app on a new device, sign in, and access your existing proofs. Local copies of some photos on a specific device may not be available if those image files were removed from that device, so it\'s still a good idea to keep your own backups of especially important exports.',
   },
   {
     question: 'Can I add location to my records?',
@@ -68,7 +68,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: 'Is my data private?',
     answer:
-      'Yes. Proof is designed so that you stay in control of your data. Your records are stored securely and transmitted over encrypted connections, and we don\'t sell your personal data. We may use limited diagnostics and analytics (such as crash reports) and trusted third-party providers to operate the service, as explained in the Privacy Policy, but your proof content is not used for advertising or profiling.',
+      'Yes. Prooffy is designed so that you stay in control of your data. Your records are stored securely and transmitted over encrypted connections, and we don\'t sell your personal data. We may use limited diagnostics and analytics (such as crash reports) and trusted third-party providers to operate the service, as explained in the Privacy Policy, but your proof content is not used for advertising or profiling.',
   },
   {
     question: 'How do I change my password?',
@@ -112,7 +112,7 @@ export default function HelpScreen() {
         <Ionicons name="help-circle" size={48} color="#000" />
         <Text style={styles.title}>Help & FAQ</Text>
         <Text style={styles.subtitle}>
-          Find answers to common questions about Proof
+          Find answers to common questions about Prooffy
         </Text>
       </View>
 
@@ -143,7 +143,7 @@ export default function HelpScreen() {
       <View style={styles.footer}>
         <Text style={styles.footerText}>
           Still have questions? The app is designed to be simple and intuitive.
-          Explore the features and discover how Proof can help you maintain your
+          Explore the features and discover how Prooffy can help you maintain your
           daily evidence log.
         </Text>
       </View>

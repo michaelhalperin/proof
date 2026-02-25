@@ -3,12 +3,13 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { User, hashPassword, verifyPassword } from "../models/User";
 import { requireAuth, AuthRequest, getSecret } from "../middleware/auth";
-import { authRateLimiter } from "../middleware/rateLimit";
+// Temporarily disable auth rate limiting
+// import { authRateLimiter } from "../middleware/rateLimit";
 
 const router = express.Router();
 
-/** Apply rate limiting to all auth routes */
-router.use(authRateLimiter);
+/** Apply rate limiting to all auth routes (temporarily disabled) */
+// router.use(authRateLimiter);
 
 /** Safe user fields (no passwordHash or tokens) */
 function toSafeUser(user: any) {

@@ -261,8 +261,8 @@ export async function shareText(text: string, record: Record): Promise<void> {
   );
   const visibleLine =
     compactToken != null
-      ? `✓ Proof · ${record.dateKey} · ${compactToken}`
-      : `✓ Proof · ${record.dateKey} · ${record.createdAt} · ${formatHashForDisplay(noteOnlyHash)}`;
+      ? `✓ Prooffy · ${record.dateKey} · ${compactToken}`
+      : `✓ Prooffy · ${record.dateKey} · ${record.createdAt} · ${formatHashForDisplay(noteOnlyHash)}`;
   const shareContent = note
     ? `${note}${invisible}\n\n${visibleLine}`
     : invisible + "\n\n" + visibleLine;
@@ -270,7 +270,7 @@ export async function shareText(text: string, record: Record): Promise<void> {
   try {
     await Share.share({
       message: shareContent,
-      title: "Share Proof",
+      title: "Share Prooffy",
     });
   } catch (error: any) {
     throw new Error(
@@ -287,6 +287,20 @@ export async function sharePDF(pdfUri: string): Promise<void> {
     await Sharing.shareAsync(pdfUri, {
       mimeType: "application/pdf",
       dialogTitle: "Share PDF",
+    });
+  } else {
+    throw new Error("Sharing is not available on this device");
+  }
+}
+
+/**
+ * Share an iCal (.ics) file so the user can add events to their calendar.
+ */
+export async function shareCalendarFile(icsUri: string): Promise<void> {
+  if (await Sharing.isAvailableAsync()) {
+    await Sharing.shareAsync(icsUri, {
+      mimeType: "text/calendar",
+      dialogTitle: "Export to Calendar",
     });
   } else {
     throw new Error("Sharing is not available on this device");

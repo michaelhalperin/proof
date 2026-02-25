@@ -31,7 +31,7 @@ export default function TermsOfServiceScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
           <Text style={styles.sectionText}>
-            By accessing or using Proof ("the App"), you agree to be bound by these Terms
+            By accessing or using Prooffy ("the App"), you agree to be bound by these Terms
             of Service ("Terms"). If you do not agree with these Terms, you may not use
             the App.
           </Text>
@@ -40,7 +40,7 @@ export default function TermsOfServiceScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>2. Description of Service</Text>
           <Text style={styles.sectionText}>
-            Proof is an application that lets you capture trustworthy records of what
+            Prooffy is an application that lets you capture trustworthy records of what
             happened and when, using notes, photos, timestamps, and cryptographic hashes.
             The App may store your data in secure cloud infrastructure and on your device
             so you can access your proofs across devices and verify shared notes and PDFs.
@@ -50,7 +50,7 @@ export default function TermsOfServiceScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>3. User Accounts</Text>
           <Text style={styles.sectionText}>
-            To use Proof, you must create an account with a valid email address. You are
+            To use Prooffy, you must create an account with a valid email address. You are
             responsible for maintaining the confidentiality of your account credentials
             and for all activities that occur under your account. You agree to notify us
             promptly of any unauthorized use of your account or other security breach.
@@ -60,7 +60,7 @@ export default function TermsOfServiceScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>4. User Responsibilities</Text>
           <Text style={styles.sectionText}>
-            You agree to use Proof only for lawful purposes and in accordance with these
+            You agree to use Prooffy only for lawful purposes and in accordance with these
             Terms. You are solely responsible for the content you create, upload, and
             store using the App. You must not:
           </Text>
@@ -75,7 +75,7 @@ export default function TermsOfServiceScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>5. Data Storage and Privacy</Text>
           <Text style={styles.sectionText}>
-            Data you create in Proof may be stored in secure cloud infrastructure and on
+            Data you create in Prooffy may be stored in secure cloud infrastructure and on
             your device. Our Privacy Policy explains in detail what we collect and how we
             use it. By using the App, you also agree to our Privacy Policy.
           </Text>
@@ -98,7 +98,7 @@ export default function TermsOfServiceScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>6. Record Integrity</Text>
           <Text style={styles.sectionText}>
-            Proof uses cryptographic hashing and related techniques to help you verify the
+            Prooffy uses cryptographic hashing and related techniques to help you verify the
             integrity of your records. While we design these features to make tampering
             detectable, we do not guarantee that records cannot be modified outside of
             the App's intended functionality. Integrity verification is provided as a
@@ -109,7 +109,7 @@ export default function TermsOfServiceScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>7. Immutability Policy</Text>
           <Text style={styles.sectionText}>
-            Proof is designed so that records are not casually editable or deletable,
+            Prooffy is designed so that records are not casually editable or deletable,
             which helps preserve their evidentiary value. In some cases, you may be able
             to edit or delete recent or specific records, as explained in the app.
             Immutability is a design goal, not a legal guarantee. You acknowledge that:
@@ -201,7 +201,7 @@ export default function TermsOfServiceScreen() {
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            By using Proof, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
+            By using Prooffy, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
           </Text>
         </View>
       </View>

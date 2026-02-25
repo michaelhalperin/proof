@@ -55,3 +55,38 @@ export function getExtensionFromUri(uri: string): string {
   const ext = uri.split(".").pop()?.toLowerCase();
   return ext ? `.${ext}` : ".jpg";
 }
+
+const PROFILE_IMAGE_FILENAME = "profile_photo";
+
+/**
+ * Copy a picked image to app storage for profile photo. Uses a fixed filename
+ * so there is only one profile image. Returns the destination file URI.
+ */
+export async function copyProfileImageToAppStorage(
+  sourceUri: string
+): Promise<string> {
+  const ext = getExtensionFromUri(sourceUri);
+  const destUri =
+    FileSystem.documentDirectory + PROFILE_IMAGE_FILENAME + ext;
+
+  await FileSystem.copyAsync({
+    from: sourceUri,
+    to: destUri,
+  });
+
+  return destUri;
+}
+
+/**
+ * Delete the profile image file if it exists at the given URI.
+ */
+export async function deleteProfileImageFile(uri: string): Promise<void> {
+  try {
+    const info = await FileSystem.getInfoAsync(uri);
+    if (info.exists) {
+      await FileSystem.deleteAsync(uri, { idempotent: true });
+    }
+  } catch {
+    // ignore
+  }
+}

@@ -2,7 +2,7 @@ require('dotenv').config();
 
 module.exports = {
   expo: {
-    name: "Proof",
+    name: "Prooffy",
     slug: "proof",
     version: "1.1.0",
     orientation: "portrait",
@@ -35,9 +35,9 @@ module.exports = {
       icon: "./assets/icon.png",
       infoPlist: {
         ITSAppUsesNonExemptEncryption: false,
-        NSCameraUsageDescription: "Proof needs camera access to take photos for your daily evidence log.",
-        NSPhotoLibraryUsageDescription: "Proof needs photo library access to select photos for your daily evidence log.",
-        NSLocationWhenInUseUsageDescription: "Proof needs location access to optionally tag your proof records with location data.",
+        NSCameraUsageDescription: "Prooffy needs camera access to take photos for your daily evidence log.",
+        NSPhotoLibraryUsageDescription: "Prooffy needs photo library access to select photos for your daily evidence log.",
+        NSLocationWhenInUseUsageDescription: "Prooffy needs location access to optionally tag your proof records with location data.",
         UIFileSharingEnabled: true,
         LSSupportsOpeningDocumentsInPlace: true
       }
@@ -76,8 +76,8 @@ module.exports = {
       [
         "expo-image-picker",
         {
-          photosPermission: "Proof needs photo library access to select photos for your daily evidence log.",
-          cameraPermission: "Proof needs camera access to take photos for your daily evidence log."
+          photosPermission: "Prooffy needs photo library access to select photos for your daily evidence log.",
+          cameraPermission: "Prooffy needs camera access to take photos for your daily evidence log."
         }
       ],
       [
@@ -85,6 +85,12 @@ module.exports = {
         {
           icon: "./assets/notification-icon.png",
           color: "#000000"
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          calendarPermission: "Prooffy needs calendar access to add today's proof as an event."
         }
       ],
       "expo-secure-store"

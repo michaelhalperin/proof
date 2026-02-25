@@ -182,7 +182,7 @@ export default function ContactScreen() {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Thank you for using Proof. We appreciate your feedback and are committed to providing the best possible support.
+            Thank you for using Prooffy. We appreciate your feedback and are committed to providing the best possible support.
           </Text>
         </View>
       </View>

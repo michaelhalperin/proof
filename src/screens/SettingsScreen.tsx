@@ -12,6 +12,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -35,7 +36,15 @@ import {
   setStatisticsTabVisible,
   isMapTabVisible,
   setMapTabVisible,
+  getProfileImageUri,
+  setProfileImageUri,
+  clearProfileImageUri,
 } from "../utils/preferences";
+import {
+  copyProfileImageToAppStorage,
+  deleteProfileImageFile,
+} from "../utils/fileSystem";
+import * as ImagePicker from "expo-image-picker";
 import { getFontFamily } from "../config/theme";
 
 type SettingsScreenNavigationProp =
@@ -109,7 +118,22 @@ export default function SettingsScreen() {
   const [mapTabVisible, setMapTabVisibleState] = useState<boolean>(true);
   const [emailVerified, setEmailVerified] = useState<boolean>(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [profileImageUri, setProfileImageUriState] = useState<string | null>(
+    null,
+  );
+  const [profileImageZoomVisible, setProfileImageZoomVisible] = useState(false);
+  const [hasReloadedOnScrollEnd, setHasReloadedOnScrollEnd] = useState(false);
+  const [scrollReloadMessageVisible, setScrollReloadMessageVisible] =
+    useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  const onAvatarPress = () => {
+    if (profileImageUri) {
+      setProfileImageZoomVisible(true);
+    } else {
+      showProfileImageOptions();
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -119,6 +143,7 @@ export default function SettingsScreen() {
         loadReminderSettings(),
         loadPreferences(),
         loadEmailVerificationStatus(),
+        loadProfileImage(),
       ]);
       if (!cancelled) setIsHydrated(true);
     })();
@@ -147,6 +172,123 @@ export default function SettingsScreen() {
     }
   };
 
+  const loadProfileImage = async () => {
+    try {
+      const uri = await getProfileImageUri();
+      if (uri) {
+        const info = await FileSystem.getInfoAsync(uri);
+        if (info.exists) {
+          setProfileImageUriState(uri);
+        } else {
+          await clearProfileImageUri();
+        }
+      }
+    } catch (error) {
+      console.error("Error loading profile image:", error);
+    }
+  };
+
+  const showProfileImageOptions = () => {
+    const buttons: Array<{
+      text: string;
+      onPress?: () => void;
+      style?: "cancel" | "default" | "destructive";
+    }> = [
+      { text: "Take Photo", onPress: handleTakeProfilePhoto },
+      { text: "Choose from Library", onPress: handleChooseProfilePhoto },
+    ];
+    if (profileImageUri) {
+      buttons.push({
+        text: "Remove Photo",
+        onPress: handleRemoveProfilePhoto,
+        style: "destructive",
+      });
+    }
+    buttons.push({ text: "Cancel", style: "cancel" });
+    Alert.alert("Profile Photo", "Change your profile picture", buttons);
+  };
+
+  const handleTakeProfilePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Prooffy needs camera access to take a profile photo. Please enable it in device settings.",
+        );
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (result.canceled || !result.assets[0]) return;
+      await applyPickedProfileImage(result.assets[0].uri);
+    } catch (error: any) {
+      console.error("Profile photo camera error:", error);
+      Alert.alert(
+        "Error",
+        "Failed to take photo. Please check camera permissions and try again.",
+      );
+    }
+  };
+
+  const handleChooseProfilePhoto = async () => {
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Prooffy needs photo library access to choose a profile photo. Please enable it in device settings.",
+        );
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      if (result.canceled || !result.assets[0]) return;
+      await applyPickedProfileImage(result.assets[0].uri);
+    } catch (error: any) {
+      console.error("Profile photo library error:", error);
+      Alert.alert(
+        "Error",
+        "Failed to select photo. Please check permissions and try again.",
+      );
+    }
+  };
+
+  const applyPickedProfileImage = async (sourceUri: string) => {
+    try {
+      if (profileImageUri) {
+        await deleteProfileImageFile(profileImageUri);
+      }
+      const destUri = await copyProfileImageToAppStorage(sourceUri);
+      await setProfileImageUri(destUri);
+      setProfileImageUriState(destUri);
+    } catch (error: any) {
+      console.error("Error saving profile image:", error);
+      Alert.alert("Error", "Failed to save profile photo. Please try again.");
+    }
+  };
+
+  const handleRemoveProfilePhoto = async () => {
+    try {
+      if (profileImageUri) {
+        await deleteProfileImageFile(profileImageUri);
+      }
+      await clearProfileImageUri();
+      setProfileImageUriState(null);
+    } catch (error) {
+      console.error("Error removing profile image:", error);
+    }
+  };
+
   const loadReminderSettings = async () => {
     try {
       const enabled = await isReminderEnabled();
@@ -166,7 +308,7 @@ export default function SettingsScreen() {
         if (!hasPermission) {
           Alert.alert(
             "Permission Required",
-            "Proof needs notification permissions to send daily reminders. Please enable notifications in your device settings.",
+            "Prooffy needs notification permissions to send daily reminders. Please enable notifications in your device settings.",
           );
           return;
         }
@@ -302,6 +444,36 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleSettingsScroll = useCallback(
+    (event: any) => {
+      const { contentOffset } = event.nativeEvent;
+
+      // Detect a pull-down gesture at the very top of the list
+      const isPulledDown = contentOffset.y <= -40;
+
+      if (isPulledDown && !hasReloadedOnScrollEnd) {
+        setHasReloadedOnScrollEnd(true);
+
+        // Reload key settings data when user pulls down from the top
+        loadStats();
+        loadReminderSettings();
+        loadPreferences();
+        loadEmailVerificationStatus();
+        loadProfileImage();
+
+        // Show a short visual confirmation
+        setScrollReloadMessageVisible(true);
+        setTimeout(() => {
+          setScrollReloadMessageVisible(false);
+        }, 1500);
+      } else if (!isPulledDown && hasReloadedOnScrollEnd) {
+        // Reset flag when user releases / scrolls back
+        setHasReloadedOnScrollEnd(false);
+      }
+    },
+    [hasReloadedOnScrollEnd],
+  );
+
   const handleExportAllData = async () => {
     Alert.alert(
       "Export All Data",
@@ -393,7 +565,7 @@ export default function SettingsScreen() {
 
                 allRecordsHtml += `
                   <div style="page-break-after: always; margin-bottom: 40px;">
-                    <h2 style="color: #000; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">Proof Record - ${dateStr}</h2>
+                    <h2 style="color: #000; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">Prooffy Record - ${dateStr}</h2>
                     
                     <div style="margin: 15px 0;">
                       <div style="font-weight: 600; color: #666; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Created At</div>
@@ -462,13 +634,13 @@ export default function SettingsScreen() {
                     </style>
                   </head>
                   <body>
-                    <h1>All Proof Records</h1>
+                    <h1>All Prooffy Records</h1>
                     <p style="color: #666; margin-bottom: 30px;">Total Records: ${
                       records.length
                     }</p>
                     ${allRecordsHtml}
                     <div style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; text-align: center;">
-                      Generated by Proof (offline, local-only) - ${new Date().toLocaleString()}
+                      Generated by Prooffy (offline, local-only) - ${new Date().toLocaleString()}
                     </div>
                   </body>
                 </html>
@@ -680,24 +852,105 @@ export default function SettingsScreen() {
         ref={scrollViewRef}
         style={[styles.container, { paddingTop: insets.top }]}
         showsVerticalScrollIndicator={false}
+        onScroll={handleSettingsScroll}
+        scrollEventThrottle={32}
       >
         <View style={styles.content}>
           {/* Header */}
-          <View style={styles.header}></View>
+          <View style={styles.header}>
+            {scrollReloadMessageVisible && (
+              <View style={styles.scrollReloadBanner}>
+                <Text style={styles.scrollReloadBannerText}>
+                  Settings refreshed
+                </Text>
+              </View>
+            )}
+          </View>
 
           {/* Account Section */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account</Text>
             <View style={styles.card}>
               <View style={styles.accountHeader}>
-                <View style={styles.avatar}>
-                  <Ionicons name="person" size={24} color="#666" />
-                </View>
+                <TouchableOpacity
+                  style={styles.avatarTouchable}
+                  onPress={onAvatarPress}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.avatarRing}>
+                    {profileImageUri ? (
+                      <Image
+                        source={{
+                          uri: profileImageUri.startsWith("file://")
+                            ? profileImageUri
+                            : `file://${profileImageUri}`,
+                        }}
+                        style={styles.avatarImage}
+                      />
+                    ) : (
+                      <View style={styles.avatarPlaceholder}>
+                        <Ionicons name="person" size={28} color="#999" />
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
                 <View style={styles.accountInfo}>
                   <Text style={styles.accountName}>{user?.name || "User"}</Text>
                   <Text style={styles.accountEmail}>{user?.email || ""}</Text>
+                  <TouchableOpacity
+                    onPress={showProfileImageOptions}
+                    style={styles.profilePhotoLink}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.profilePhotoLinkText}>
+                      {profileImageUri
+                        ? "Change profile photo"
+                        : "Add profile photo"}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
+
+              {/* Full-screen profile image zoom (Instagram-style) */}
+              <Modal
+                visible={profileImageZoomVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setProfileImageZoomVisible(false)}
+              >
+                <Pressable
+                  style={styles.profileZoomBackdrop}
+                  onPress={() => setProfileImageZoomVisible(false)}
+                >
+                  <Pressable
+                    style={styles.profileZoomImageContainer}
+                    onPress={(e) => e.stopPropagation()}
+                  >
+                    {profileImageUri && (
+                      <Image
+                        source={{
+                          uri: profileImageUri.startsWith("file://")
+                            ? profileImageUri
+                            : `file://${profileImageUri}`,
+                        }}
+                        style={styles.profileZoomImage}
+                        resizeMode="contain"
+                      />
+                    )}
+                  </Pressable>
+                  <TouchableOpacity
+                    style={[
+                      styles.profileZoomCloseButton,
+                      { top: insets.top + 12 },
+                    ]}
+                    onPress={() => setProfileImageZoomVisible(false)}
+                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  >
+                    <Ionicons name="close" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </Pressable>
+              </Modal>
+
               <View style={styles.divider} />
               <View style={styles.infoRow}>
                 <View style={styles.infoLeft}>
@@ -938,7 +1191,7 @@ export default function SettingsScreen() {
             <View style={styles.card}>
               <SettingItem
                 icon="shield-checkmark-outline"
-                label="Verify Proof"
+                label="Verify Prooffy"
                 onPress={() => navigation.navigate("VerifyProof")}
               />
               <View style={styles.divider} />
@@ -950,8 +1203,14 @@ export default function SettingsScreen() {
               <View style={styles.divider} />
               <SettingItem
                 icon="information-circle-outline"
-                label="About Proof"
+                label="About Prooffy"
                 onPress={() => navigation.navigate("About")}
+              />
+              <View style={styles.divider} />
+              <SettingItem
+                icon="megaphone-outline"
+                label="Feedback & Feature Bounty"
+                onPress={() => navigation.navigate("Feedback")}
               />
               <View style={styles.divider} />
               <SettingItem
@@ -1188,6 +1447,18 @@ const styles = StyleSheet.create({
   header: {
     paddingVertical: 24,
   },
+  scrollReloadBanner: {
+    alignSelf: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: "rgba(0,0,0,0.06)",
+  },
+  scrollReloadBannerText: {
+    fontSize: 12,
+    color: "#555",
+    fontFamily: getFontFamily("medium"),
+  },
   section: {
     marginBottom: 32,
   },
@@ -1213,17 +1484,69 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
   },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  avatarTouchable: {
+    marginRight: 16,
+  },
+  avatarRing: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#f0f0f0",
+    borderWidth: 2,
+    borderColor: "#e8e8e8",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  avatarPlaceholder: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
   },
   accountInfo: {
     flex: 1,
+  },
+  profilePhotoLink: {
+    marginTop: 6,
+  },
+  profilePhotoLinkText: {
+    fontSize: 14,
+    fontFamily: getFontFamily("regular"),
+    color: "#007AFF",
+  },
+  profileZoomBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.94)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileZoomImageContainer: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileZoomImage: {
+    width: "100%",
+    height: "100%",
+  },
+  profileZoomCloseButton: {
+    position: "absolute",
+    right: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   accountName: {
     fontSize: 18,
@@ -1240,7 +1563,7 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: "#e5e5e5",
-    marginLeft: 52,
+    marginLeft: 88,
   },
   settingItem: {
     flexDirection: "row",

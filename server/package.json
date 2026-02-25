@@ -1,7 +1,7 @@
 {
   "name": "proof-server",
   "version": "1.0.0",
-  "description": "Backend API server for Proof app with MongoDB",
+  "description": "Backend API server for Prooffy app with MongoDB",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",

@@ -125,7 +125,7 @@ export async function scheduleReminder(): Promise<void> {
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: "Proof",
+      title: "Prooffy",
       body,
       sound: true,
     },

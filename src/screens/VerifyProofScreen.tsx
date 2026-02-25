@@ -110,7 +110,7 @@ export default function VerifyProofScreen() {
       if (!parsed) {
         setResult({
           valid: false,
-          error: "No proof data found. Use a PDF exported from Proof.",
+          error: "No proof data found. Use a PDF exported from Prooffy.",
         });
         return;
       }
@@ -160,7 +160,7 @@ export default function VerifyProofScreen() {
       const looksLikeNoteOnly =
         pastedText.trim().length > 0 &&
         !pastedText.includes("Hash:") &&
-        !pastedText.includes("Proof") &&
+        !pastedText.includes("Prooffy") &&
         !/\d{4}-\d{2}-\d{2}\s+\d{10,15}\s+[a-fA-F0-9]{64}/.test(pastedText);
       setResult({
         valid: false,
@@ -358,7 +358,7 @@ export default function VerifyProofScreen() {
                 </View>
               ) : tab === "pdf" ? (
                 <View style={styles.section}>
-                  <Text style={styles.label}>Proof PDF</Text>
+                  <Text style={styles.label}>Prooffy PDF</Text>
                   {pdfFileName && (
                     <Text style={styles.pdfFileName} numberOfLines={1}>
                       {pdfFileName}

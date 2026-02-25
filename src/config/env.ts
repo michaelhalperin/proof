@@ -15,7 +15,7 @@ export const RESEND_API_KEY = getEnvVar("RESEND_API_KEY");
 // Email configuration
 export const EMAIL_FROM = getEnvVar("EMAIL_FROM", "onboarding@resend.dev");
 export const SUPPORT_EMAIL = getEnvVar("SUPPORT_EMAIL");
-export const APP_NAME = "Proof";
+export const APP_NAME = "Prooffy";
 
 // EmailJS configuration (for support emails)
 export const EMAILJS_SERVICE_ID = getEnvVar("EMAILJS_SERVICE_ID");

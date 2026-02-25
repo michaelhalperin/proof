@@ -205,7 +205,7 @@ export async function sendSupportEmail(
   message: string,
   userEmail?: string | null
 ): Promise<void> {
-  const safeSubject = subject.trim() || "Proof Support Request";
+  const safeSubject = subject.trim() || "Prooffy Support Request";
   const safeMessage = message.trim() || "(no message provided)";
 
   const userLine = userEmail
