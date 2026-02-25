@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,27 +7,17 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  Modal,
-  Pressable,
   ActionSheetIOS,
   Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  useRoute,
-  useNavigation,
-  useFocusEffect,
-} from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import type { RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
-import {
-  formatDateKey,
-  formatTimestamp,
-  getTodayDateKey,
-} from "../utils/dateUtils";
+import { formatTimestamp, getTodayDateKey } from "../utils/dateUtils";
 import { getRecord, getPhotos, deleteRecord } from "../db/database";
 import { verifyRecordIntegrity } from "../utils/hashing";
 import { generatePDF } from "../utils/pdfExport";
@@ -51,15 +41,16 @@ export default function DayDetailScreen() {
   const [record, setRecord] = useState<Record | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [integrityVerified, setIntegrityVerified] = useState<boolean | null>(
-    null
+    null,
   );
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const [showHash, setShowHash] = useState(false);
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
-  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(
+    null,
+  );
   const [pinned, setPinned] = useState(false);
   const isToday = dateKey === getTodayDateKey();
 
@@ -90,7 +81,7 @@ export default function DayDetailScreen() {
             console.error("Error checking photo file:", photo.fileUri, error);
           }
           return photo;
-        })
+        }),
       );
 
       setRecord(loadedRecord);
@@ -110,7 +101,7 @@ export default function DayDetailScreen() {
         loadedRecord.dateKey,
         loadedRecord.createdAt,
         loadedRecord.note,
-        canonicalPhotos
+        canonicalPhotos,
       );
 
       setIntegrityVerified(verified);
@@ -148,7 +139,7 @@ export default function DayDetailScreen() {
           const option = options[buttonIndex];
           if (option === "Cancel") return;
           await handleShareOption(option);
-        }
+        },
       );
     } else {
       // Android: Show Alert with options
@@ -189,7 +180,10 @@ export default function DayDetailScreen() {
 
     setExporting(true);
     try {
-      if ((option === "Share Photo" || option === "Share Photos") && photos.length > 0) {
+      if (
+        (option === "Share Photo" || option === "Share Photos") &&
+        photos.length > 0
+      ) {
         const photoUris = photos.map((p) => p.fileUri);
         await sharePhotos(photoUris, record);
       } else if (option === "Share Note" && record.note) {
@@ -275,7 +269,7 @@ export default function DayDetailScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -339,10 +333,7 @@ export default function DayDetailScreen() {
       <ScrollView
         ref={scrollViewRef}
         style={styles.scrollView}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { paddingTop: 16 },
-        ]}
+        contentContainerStyle={[styles.scrollContent, { paddingTop: 16 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Created At Header with Integrity Icon */}
@@ -458,7 +449,7 @@ export default function DayDetailScreen() {
                     <Text style={styles.locationText}>
                       {loc.address ||
                         `${loc.latitude.toFixed(4)}, ${loc.longitude.toFixed(
-                          4
+                          4,
                         )}`}
                     </Text>
                   </View>
@@ -485,7 +476,8 @@ export default function DayDetailScreen() {
                         [
                           {
                             text: "View Full Size",
-                            onPress: () => handlePhotoPress(photos.indexOf(photo)),
+                            onPress: () =>
+                              handlePhotoPress(photos.indexOf(photo)),
                           },
                           {
                             text: "Share Photo",
@@ -497,7 +489,7 @@ export default function DayDetailScreen() {
                                 console.error("Error sharing photo:", error);
                                 Alert.alert(
                                   "Error",
-                                  "Failed to share photo. Please try again."
+                                  "Failed to share photo. Please try again.",
                                 );
                               } finally {
                                 setExporting(false);
@@ -505,7 +497,7 @@ export default function DayDetailScreen() {
                             },
                           },
                           { text: "Cancel", style: "cancel" as const },
-                        ]
+                        ],
                       );
                     }}
                     activeOpacity={0.9}

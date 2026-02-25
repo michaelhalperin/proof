@@ -79,7 +79,8 @@ export default function VerifyProofScreen() {
         if (!response.ok) {
           const errorJson = await response.json().catch(() => null);
           const message =
-            errorJson?.error || "Could not read PDF. Try again or use Enter details.";
+            errorJson?.error ||
+            "Could not read PDF. Try again or use Enter details.";
           throw new Error(message);
         }
 

@@ -24,7 +24,7 @@ import {
   getLastNDays,
   formatDateKey,
 } from "../utils/dateUtils";
-import { getAllRecords, getRecord, getPhotos, Record, Photo } from "../db/database";
+import { getAllRecords, getPhotos, Record, Photo } from "../db/database";
 import { getFontFamily } from "../config/theme";
 import { Image } from "expo-image";
 
@@ -54,7 +54,7 @@ export default function HistoryScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
   const [markedDates, setMarkedDates] = useState<{ [key: string]: any }>({});
   const [loggedDateKeysSet, setLoggedDateKeysSet] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const flatListRef = useRef<FlatList>(null);
 
@@ -68,7 +68,7 @@ export default function HistoryScreen() {
       // Scroll to top when screen comes into focus
       flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
       loadHistory();
-    }, [])
+    }, []),
   );
 
   const loadHistory = async () => {
@@ -76,7 +76,7 @@ export default function HistoryScreen() {
       const records = await getAllRecords();
       const recordsMap = new Map<string, Record>();
       records.forEach((r) => recordsMap.set(r.dateKey, r));
-      
+
       const loggedDateKeys = new Set(records.map((r) => r.dateKey));
       setLoggedDateKeysSet(loggedDateKeys);
       const last30Days = getLastNDays(30);
@@ -96,7 +96,7 @@ export default function HistoryScreen() {
             hasNote = !!(record?.note && record.note.trim().length > 0);
             const photos = await getPhotos(dateKey);
             photoCount = photos.length;
-            
+
             return {
               dateKey,
               isLogged,
@@ -117,7 +117,7 @@ export default function HistoryScreen() {
             hasNote,
             pinned,
           };
-        })
+        }),
       );
 
       // Reverse to show today first (newest first)
@@ -183,7 +183,10 @@ export default function HistoryScreen() {
     const isClickable = item.isLogged;
 
     // Calculate activity density (more photos/notes = more visual)
-    const densityScore = (item.photoCount > 0 ? 1 : 0) + (item.hasNote ? 1 : 0) + (item.photoCount > 2 ? 1 : 0);
+    const densityScore =
+      (item.photoCount > 0 ? 1 : 0) +
+      (item.hasNote ? 1 : 0) +
+      (item.photoCount > 2 ? 1 : 0);
     const isHighActivity = densityScore >= 2;
 
     return (
@@ -209,7 +212,12 @@ export default function HistoryScreen() {
               {item.isLogged ? (
                 <>
                   {item.pinned && (
-                    <Ionicons name="star" size={14} color="#FFD700" style={styles.pinIcon} />
+                    <Ionicons
+                      name="star"
+                      size={14}
+                      color="#FFD700"
+                      style={styles.pinIcon}
+                    />
                   )}
                   {item.photoCount > 0 && (
                     <View style={styles.metaBadge}>
@@ -230,7 +238,12 @@ export default function HistoryScreen() {
           </View>
           {item.isLogged && (
             <View style={styles.statusIndicator}>
-              <View style={[styles.statusDot, isHighActivity && styles.statusDotActive]} />
+              <View
+                style={[
+                  styles.statusDot,
+                  isHighActivity && styles.statusDotActive,
+                ]}
+              />
             </View>
           )}
         </View>
@@ -239,8 +252,8 @@ export default function HistoryScreen() {
         {item.isLogged && item.photoCount > 0 && item.photos && (
           <View style={styles.photoThumbnails}>
             {item.photos.slice(0, 3).map((photo, index) => {
-              const imageUri = photo.fileUri.startsWith("file://") 
-                ? photo.fileUri 
+              const imageUri = photo.fileUri.startsWith("file://")
+                ? photo.fileUri
                 : `file://${photo.fileUri}`;
               return (
                 <Image
@@ -253,7 +266,9 @@ export default function HistoryScreen() {
             })}
             {item.photoCount > 3 && (
               <View style={styles.photoThumbnailMore}>
-                <Text style={styles.photoThumbnailMoreText}>+{item.photoCount - 3}</Text>
+                <Text style={styles.photoThumbnailMoreText}>
+                  +{item.photoCount - 3}
+                </Text>
               </View>
             )}
           </View>
@@ -347,10 +362,12 @@ export default function HistoryScreen() {
                 </Text>
                 <TouchableOpacity
                   style={styles.emptyButton}
-                  onPress={() => navigation.navigate('LogToday', {})}
+                  onPress={() => navigation.navigate("LogToday", {})}
                 >
                   <Ionicons name="add-circle" size={20} color="#fff" />
-                  <Text style={styles.emptyButtonText}>Create First Record</Text>
+                  <Text style={styles.emptyButtonText}>
+                    Create First Record
+                  </Text>
                 </TouchableOpacity>
               </View>
             )

@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
-  ScrollView,
   Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,7 +18,6 @@ import { getAllRecords } from "../db/database";
 import { Record } from "../db/database";
 import { parseLocation, LocationData } from "../utils/location";
 import { formatDateKey } from "../utils/dateUtils";
-import { getFontFamily } from "../config/theme";
 
 type MapViewScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -86,7 +84,7 @@ export default function MapViewScreen() {
   useFocusEffect(
     useCallback(() => {
       loadRecords();
-    }, [])
+    }, []),
   );
 
   const handleMarkerPress = (record: RecordWithLocation) => {
@@ -143,7 +141,7 @@ export default function MapViewScreen() {
             description={
               record.locationData.address ||
               `${record.locationData.latitude.toFixed(
-                4
+                4,
               )}, ${record.locationData.longitude.toFixed(4)}`
             }
             onPress={() => handleMarkerPress(record)}

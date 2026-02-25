@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -55,7 +55,7 @@ export default function StatisticsScreen() {
     useCallback(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
       loadStatistics();
-    }, [])
+    }, []),
   );
 
   if (loading || !statistics) {
@@ -78,7 +78,8 @@ export default function StatisticsScreen() {
         <Ionicons name="stats-chart-outline" size={64} color="#ccc" />
         <Text style={styles.emptyTitle}>No Statistics Available</Text>
         <Text style={styles.emptyText}>
-          Create your first proof record to see statistics and insights about your activity.
+          Create your first proof record to see statistics and insights about
+          your activity.
         </Text>
       </ScrollView>
     );
@@ -86,7 +87,7 @@ export default function StatisticsScreen() {
 
   // Prepare chart data
   const monthLabels = statistics.activityByMonth.map((m) =>
-    dayjs(m.month).format("MMM")
+    dayjs(m.month).format("MMM"),
   );
   const monthData = statistics.activityByMonth.map((m) => m.count);
 

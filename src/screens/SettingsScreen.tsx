@@ -29,7 +29,6 @@ import {
   getReminderTime,
   setReminderTime,
   requestNotificationPermissions,
-  initializeNotifications,
 } from "../utils/notifications";
 import {
   isStatisticsTabVisible,
@@ -167,7 +166,7 @@ export default function SettingsScreen() {
         if (!hasPermission) {
           Alert.alert(
             "Permission Required",
-            "Proof needs notification permissions to send daily reminders. Please enable notifications in your device settings."
+            "Proof needs notification permissions to send daily reminders. Please enable notifications in your device settings.",
           );
           return;
         }
@@ -182,7 +181,7 @@ export default function SettingsScreen() {
         "Error",
         `Failed to ${reminderEnabled ? "disable" : "enable"} reminder: ${
           error.message
-        }`
+        }`,
       );
     }
   };
@@ -195,9 +194,8 @@ export default function SettingsScreen() {
       await setStatisticsTabVisible(newValue);
 
       // Notify TabNavigator that preferences changed
-      const { tabPreferencesListener } = await import(
-        "../utils/tabPreferencesListener"
-      );
+      const { tabPreferencesListener } =
+        await import("../utils/tabPreferencesListener");
       tabPreferencesListener.notify();
     } catch (error) {
       console.error("Error toggling statistics tab:", error);
@@ -215,9 +213,8 @@ export default function SettingsScreen() {
       await setMapTabVisible(newValue);
 
       // Notify TabNavigator that preferences changed
-      const { tabPreferencesListener } = await import(
-        "../utils/tabPreferencesListener"
-      );
+      const { tabPreferencesListener } =
+        await import("../utils/tabPreferencesListener");
       tabPreferencesListener.notify();
     } catch (error) {
       console.error("Error toggling map tab:", error);
@@ -268,7 +265,7 @@ export default function SettingsScreen() {
     useCallback(() => {
       loadPreferences(); // Reload preferences when Settings screen is focused
       loadEmailVerificationStatus(); // Reload email verification status when Settings screen is focused
-    }, [])
+    }, []),
   );
 
   // Reload preferences when leaving Settings screen (to update tabs immediately)
@@ -326,7 +323,7 @@ export default function SettingsScreen() {
 
               // Sort records by date (oldest first)
               const sortedRecords = [...records].sort((a, b) =>
-                a.dateKey.localeCompare(b.dateKey)
+                a.dateKey.localeCompare(b.dateKey),
               );
 
               // Build HTML for all records
@@ -339,14 +336,14 @@ export default function SettingsScreen() {
                 for (const photo of photos) {
                   try {
                     const fileInfo = await FileSystem.getInfoAsync(
-                      photo.fileUri
+                      photo.fileUri,
                     );
                     if (fileInfo.exists) {
                       const base64 = await FileSystem.readAsStringAsync(
                         photo.fileUri,
                         {
                           encoding: FileSystem.EncodingType.Base64,
-                        }
+                        },
                       );
                       const mimeType = photo.mimeType || "image/jpeg";
                       imagesHtml += `
@@ -359,7 +356,7 @@ export default function SettingsScreen() {
                     console.warn(
                       "Error loading photo for export:",
                       photo.fileUri,
-                      error
+                      error,
                     );
                   }
                 }
@@ -381,7 +378,7 @@ export default function SettingsScreen() {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
-                  }
+                  },
                 );
                 const timestampStr = new Date(record.createdAt).toLocaleString(
                   "en-US",
@@ -391,7 +388,7 @@ export default function SettingsScreen() {
                     day: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
-                  }
+                  },
                 );
 
                 allRecordsHtml += `
@@ -409,7 +406,7 @@ export default function SettingsScreen() {
                     <div style="margin: 15px 0;">
                       <div style="font-weight: 600; color: #666; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Note</div>
                       <div style="margin-top: 5px; font-size: 16px; white-space: pre-wrap; background: #f5f5f5; padding: 15px; border-radius: 4px;">${escapeHtml(
-                        record.note
+                        record.note,
                       )}</div>
                     </div>
                     `
@@ -492,20 +489,20 @@ export default function SettingsScreen() {
               await sharePDF(newUri);
               Alert.alert(
                 "Success",
-                `Exported ${records.length} proof records to PDF.`
+                `Exported ${records.length} proof records to PDF.`,
               );
             } catch (error: any) {
               console.error("Error exporting all data:", error);
               Alert.alert(
                 "Error",
-                `Failed to export data: ${error.message || "Unknown error"}`
+                `Failed to export data: ${error.message || "Unknown error"}`,
               );
             } finally {
               setExportingAll(false);
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -536,9 +533,8 @@ export default function SettingsScreen() {
                       // Delete all photo files
                       for (const photoUri of photoUris) {
                         try {
-                          const fileInfo = await FileSystem.getInfoAsync(
-                            photoUri
-                          );
+                          const fileInfo =
+                            await FileSystem.getInfoAsync(photoUri);
                           if (fileInfo.exists) {
                             await FileSystem.deleteAsync(photoUri, {
                               idempotent: true,
@@ -548,7 +544,7 @@ export default function SettingsScreen() {
                           console.warn(
                             "Error deleting photo file:",
                             photoUri,
-                            error
+                            error,
                           );
                         }
                       }
@@ -561,18 +557,18 @@ export default function SettingsScreen() {
                       console.error("Error clearing all data:", error);
                       Alert.alert(
                         "Error",
-                        "Failed to clear data. Please try again."
+                        "Failed to clear data. Please try again.",
                       );
                     } finally {
                       setClearingAll(false);
                     }
                   },
                 },
-              ]
+              ],
             );
           },
         },
-      ]
+      ],
     );
   };
 
@@ -609,9 +605,8 @@ export default function SettingsScreen() {
                       // Delete all photo files
                       for (const photoUri of photoUris) {
                         try {
-                          const fileInfo = await FileSystem.getInfoAsync(
-                            photoUri
-                          );
+                          const fileInfo =
+                            await FileSystem.getInfoAsync(photoUri);
                           if (fileInfo.exists) {
                             await FileSystem.deleteAsync(photoUri, {
                               idempotent: true,
@@ -621,7 +616,7 @@ export default function SettingsScreen() {
                           console.warn(
                             "Error deleting photo file:",
                             photoUri,
-                            error
+                            error,
                           );
                         }
                       }
@@ -634,17 +629,17 @@ export default function SettingsScreen() {
                       console.error("Error deleting account:", error);
                       Alert.alert(
                         "Error",
-                        "Failed to delete account. Please try again."
+                        "Failed to delete account. Please try again.",
                       );
                       setDeletingAccount(false);
                     }
                   },
                 },
-              ]
+              ],
             );
           },
         },
-      ]
+      ],
     );
   };
 
@@ -982,7 +977,7 @@ export default function SettingsScreen() {
                   <Ionicons name="cube-outline" size={20} color="#666" />
                   <Text style={styles.infoLabel}>Version</Text>
                 </View>
-                <Text style={styles.infoValue}>1.0.0</Text>
+                <Text style={styles.infoValue}>1.1.0</Text>
               </View>
             </View>
           </View>

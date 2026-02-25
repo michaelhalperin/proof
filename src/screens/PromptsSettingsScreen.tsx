@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import {
   getPrompts,
-  savePrompts,
   addPrompt,
   deletePrompt,
   arePromptsEnabled,
@@ -24,7 +23,6 @@ import {
 import { getFontFamily } from "../config/theme";
 
 export default function PromptsSettingsScreen() {
-  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const [prompts, setPrompts] = useState<JournalPrompt[]>([]);
   const [enabled, setEnabled] = useState(true);
@@ -37,7 +35,7 @@ export default function PromptsSettingsScreen() {
     useCallback(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
       loadSettings();
-    }, [])
+    }, []),
   );
 
   const loadSettings = async () => {
@@ -106,7 +104,7 @@ export default function PromptsSettingsScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -142,11 +140,7 @@ export default function PromptsSettingsScreen() {
             >
               <View style={styles.settingLeft}>
                 <View style={styles.iconContainer}>
-                  <Ionicons
-                    name="bulb-outline"
-                    size={20}
-                    color="#000"
-                  />
+                  <Ionicons name="bulb-outline" size={20} color="#000" />
                 </View>
                 <View style={styles.settingTextContainer}>
                   <Text style={styles.settingLabel}>Enable Prompts</Text>
@@ -157,9 +151,7 @@ export default function PromptsSettingsScreen() {
               </View>
               <View style={enabled ? styles.toggleOn : styles.toggleOff}>
                 <View
-                  style={
-                    enabled ? styles.toggleThumbOn : styles.toggleThumbOff
-                  }
+                  style={enabled ? styles.toggleThumbOn : styles.toggleThumbOff}
                 />
               </View>
             </TouchableOpacity>
@@ -170,7 +162,7 @@ export default function PromptsSettingsScreen() {
         {enabled && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Add Custom Prompt</Text>
-            <View style={styles.card}>
+            <View style={styles.promptEditorContainer}>
               <TextInput
                 style={styles.promptInput}
                 placeholder="Enter a new prompt question..."
@@ -205,9 +197,7 @@ export default function PromptsSettingsScreen() {
         {/* Prompts List */}
         {enabled && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>
-              Prompts ({prompts.length})
-            </Text>
+            <Text style={styles.sectionTitle}>Prompts ({prompts.length})</Text>
             <View style={styles.card}>
               {prompts.map((prompt, index) => (
                 <View key={prompt.id}>
@@ -226,7 +216,11 @@ export default function PromptsSettingsScreen() {
                       onPress={() => handleDeletePrompt(prompt.id)}
                       activeOpacity={0.7}
                     >
-                      <Ionicons name="trash-outline" size={20} color="#ff3b30" />
+                      <Ionicons
+                        name="trash-outline"
+                        size={20}
+                        color="#ff3b30"
+                      />
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -237,9 +231,14 @@ export default function PromptsSettingsScreen() {
 
         {!enabled && (
           <View style={styles.infoCard}>
-            <Ionicons name="information-circle-outline" size={24} color="#666" />
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color="#666"
+            />
             <Text style={styles.infoText}>
-              Prompts are disabled. Enable them to see reflection questions when creating new proof records.
+              Prompts are disabled. Enable them to see reflection questions when
+              creating new proof records.
             </Text>
           </View>
         )}
@@ -365,12 +364,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    padding: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     fontSize: 15,
     fontFamily: getFontFamily("regular"),
     minHeight: 80,
     backgroundColor: "#fafafa",
-    marginBottom: 12,
+    marginBottom: 10,
     textAlignVertical: "top",
   },
   addButton: {
@@ -390,6 +390,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     fontFamily: getFontFamily("semiBold"),
+  },
+  promptEditorContainer: {
+    backgroundColor: "transparent",
+    borderRadius: 0,
+    borderWidth: 0,
+    marginTop: 4,
+    gap: 10,
   },
   promptItem: {
     flexDirection: "row",

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,11 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { RootStackParamList, TabParamList } from "../types/navigation";
-import { getTodayDateKey, formatDateKey, getLastNDays } from "../utils/dateUtils";
+import {
+  getTodayDateKey,
+  formatDateKey,
+  getLastNDays,
+} from "../utils/dateUtils";
 import { getRandomPrompt } from "../utils/prompts";
 import {
   recordExists,
@@ -70,7 +74,7 @@ export default function HomeScreen() {
 
       // Build set of logged date keys
       const loggedSet = new Set(allRecords.map((r) => r.dateKey));
-      
+
       // Load pinned records
       const pinned = await getPinnedRecords();
       setPinnedRecords(pinned.slice(0, 3)); // Show max 3 pinned
@@ -103,7 +107,7 @@ export default function HomeScreen() {
       // Scroll to top when screen comes into focus
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
       loadData();
-    }, [todayDateKey])
+    }, [todayDateKey]),
   );
 
   const handlePrimaryAction = () => {
@@ -154,7 +158,7 @@ export default function HomeScreen() {
                 <Text style={styles.statusSubtitle}>
                   {todayRecord
                     ? `Created at ${new Date(
-                        todayRecord.createdAt
+                        todayRecord.createdAt,
                       ).toLocaleTimeString("en-US", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -288,7 +292,9 @@ export default function HomeScreen() {
                   key={record.dateKey}
                   style={styles.starredCard}
                   onPress={() =>
-                    navigation.navigate("DayDetail", { dateKey: record.dateKey })
+                    navigation.navigate("DayDetail", {
+                      dateKey: record.dateKey,
+                    })
                   }
                   activeOpacity={0.7}
                 >

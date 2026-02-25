@@ -23,27 +23,27 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: 'What is Proof?',
     answer:
-      'Proof is an offline-first daily evidence log app that lets you create tamper-evident records with notes and photos. All data is stored locally on your device - nothing is sent to the cloud.',
+      'Proof lets you capture trustworthy records of what happened and when, using notes, photos, timestamps, and cryptographic fingerprints that can be verified later. Your proof records are stored securely in the cloud and tied to your account, so you can sign in on a new device and access your existing proofs.',
   },
   {
     question: 'How does tamper-evidence work?',
     answer:
-      'Each proof record includes a SHA-256 cryptographic hash that verifies the integrity of your data. If any part of a record is modified, the hash will change and the integrity check will fail, alerting you to any tampering.',
+      'Each proof record includes integrity data (such as a SHA-256 cryptographic hash) that verifies the integrity of your data. When you share a proof as text or PDF, the app includes everything needed to recompute and check this hash. If any part of the content is modified, the hash will no longer match and the verification check will fail.',
   },
   {
     question: 'Can I edit or delete past records?',
     answer:
-      'Once saved, proof records are immutable (cannot be edited or deleted) to ensure evidence integrity. However, you can edit or delete today\'s record before the day ends. This protects the authenticity of your evidence log.',
+      'Proof is designed so that records are not casually editable or deletable, which helps preserve their evidentiary value. In most cases, you can only edit or delete today\'s record from within the app; older records are treated as immutable. Device- or system-level tools may still remove data, and we can\'t guarantee that third parties will always treat your records as immutable.',
   },
   {
     question: 'How do I export my proof records?',
     answer:
-      'You can export any proof record as a PDF by opening the record detail screen and tapping the "Export PDF" button. The PDF includes all photos, notes, timestamps, and the integrity hash. You can also share individual photos or notes using the share button.',
+      'You can export any proof record as a PDF by opening the record detail screen and tapping the "Export PDF" button. The PDF includes your notes, timestamps, integrity data, and any photos that are available. You can also share a proof as text for quick messaging, or use the Verify tab to check shared notes and PDFs that were created in Proof.',
   },
   {
     question: 'Is my data backed up?',
     answer:
-      'All data is stored locally on your device. We recommend regularly exporting important records as PDFs and storing them in a safe location. The app includes an "Export All Data" feature in Settings for backing up all your records.',
+      'Your proof records are stored in the Proof backend and linked to your account, so you can sign in on a new device and access your existing proofs. For extra safety, you can also use the "Export All Data" option in Settings to generate a PDF containing all of your records and store it in a secure location you control.',
   },
   {
     question: 'How do I use tags?',
@@ -53,7 +53,7 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: 'What happens if I lose my device?',
     answer:
-      'Since all data is stored locally, if you lose your device without backups, the data cannot be recovered. We strongly recommend using the "Export All Data" feature regularly to back up your records to a secure location.',
+      'Because your records are tied to your Proof account, you can install the app on a new device, sign in, and access your existing proofs. Local copies of some photos on a specific device may not be available if those image files were removed from that device, so it\'s still a good idea to keep your own backups of especially important exports.',
   },
   {
     question: 'Can I add location to my records?',
@@ -63,12 +63,12 @@ const FAQ_DATA: FAQItem[] = [
   {
     question: 'How do reminders work?',
     answer:
-      'You can set up daily reminders in Settings to help you remember to log your daily proof. Set your preferred reminder time, and the app will send you a notification each day at that time.',
+      'You can set up daily reminders in Settings to help you remember to log your daily proof. Set your preferred reminder time, and the app will schedule a notification around that time. If you\'ve already created a proof for today, the reminder will typically be skipped so you are not notified unnecessarily.',
   },
   {
     question: 'Is my data private?',
     answer:
-      'Yes! Proof is completely offline and privacy-first. Your data never leaves your device. There are no cloud services, no analytics, no tracking, and no data transmission. Your privacy is guaranteed.',
+      'Yes. Proof is designed so that you stay in control of your data. Your records are stored securely and transmitted over encrypted connections, and we don\'t sell your personal data. We may use limited diagnostics and analytics (such as crash reports) and trusted third-party providers to operate the service, as explained in the Privacy Policy, but your proof content is not used for advertising or profiling.',
   },
   {
     question: 'How do I change my password?',

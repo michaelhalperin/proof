@@ -29,7 +29,7 @@ export const API_URL = getEnvVar("API_URL", "http://localhost:3000/api");
 if (!SUPPORT_EMAIL) {
   console.warn("⚠️ SUPPORT_EMAIL is not configured. Support emails will not be sent to support address.");
 } else {
-  console.log("✓ SUPPORT_EMAIL configured:", SUPPORT_EMAIL);
+  console.log("✓ SUPPORT_EMAIL configured");
 }
 
 // Log API_URL configuration

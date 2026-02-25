@@ -15,9 +15,9 @@ interface RateLimitEntry {
 const RATE_LIMIT_CONFIG = {
   // Login/Password Reset limits
   AUTH: {
-    maxAttempts: 5,
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    lockoutDurationMs: 30 * 60 * 1000, // 30 minutes lockout after max attempts
+    maxAttempts: 10,
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    lockoutDurationMs: 10 * 60 * 1000, // 10 minutes lockout after max attempts
   },
   // PIN verification limits
   PIN_VERIFICATION: {
@@ -27,20 +27,13 @@ const RATE_LIMIT_CONFIG = {
   },
   // Email sending limits
   EMAIL: {
-    maxAttempts: 3,
+    maxAttempts: 5,
     windowMs: 60 * 60 * 1000, // 1 hour
     lockoutDurationMs: 60 * 60 * 1000, // 1 hour lockout
   },
 };
 
 const STORE_PREFIX = 'rate_limit_';
-
-/**
- * Email addresses that are exempt from rate limiting
- */
-const RATE_LIMIT_WHITELIST = [
-  'michaelhalperin2@gmail.com',
-];
 
 /**
  * Encode a key to be safe for SecureStore
@@ -95,16 +88,6 @@ export async function checkRateLimit(
   identifier: string,
   type: keyof typeof RATE_LIMIT_CONFIG = 'AUTH'
 ): Promise<{ allowed: boolean; remainingAttempts: number; lockedUntil?: number }> {
-  // Check if identifier is whitelisted (case-insensitive)
-  const normalizedIdentifier = identifier.toLowerCase().trim();
-  if (RATE_LIMIT_WHITELIST.includes(normalizedIdentifier)) {
-    // Always allow whitelisted emails
-    return {
-      allowed: true,
-      remainingAttempts: 999, // High number to indicate unlimited
-    };
-  }
-
   const config = RATE_LIMIT_CONFIG[type];
   const key = `${type}_${identifier}`;
   const now = Date.now();

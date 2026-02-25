@@ -9,13 +9,34 @@ const REMINDER_TIME_KEY = "reminderTime";
 
 // Configure notification handler
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
+  handleNotification: async () => {
+    try {
+      const todayKey = getTodayDateKey();
+      const hasLoggedToday = await recordExists(todayKey);
+
+      if (hasLoggedToday) {
+        // User has already logged today; suppress the reminder notification
+        return {
+          shouldShowAlert: false,
+          shouldPlaySound: false,
+          shouldSetBadge: false,
+          shouldShowBanner: false,
+          shouldShowList: false,
+        };
+      }
+    } catch {
+      // If anything goes wrong checking today's log, fall back to showing the notification
+    }
+
+    // Default behavior when user has not logged today (or check fails)
+    return {
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    };
+  },
 });
 
 /**

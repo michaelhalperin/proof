@@ -23,183 +23,194 @@ export default function PrivacyScreen() {
     >
       <View style={styles.content}>
         <View style={styles.header}>
-          <Ionicons
-            name="shield-checkmark"
-            size={48}
-            color="#000"
-            style={styles.headerIcon}
-          />
+          <Ionicons name="shield-checkmark" size={48} color="#000" style={styles.headerIcon} />
           <Text style={styles.title}>Privacy Policy</Text>
           <Text style={styles.lastUpdated}>Last Updated: {new Date().toLocaleDateString()}</Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionText}>
-            At Proof, we are committed to protecting your privacy. This Privacy Policy explains how we handle your data and what information we collect (or rather, don't collect) when you use our application.
+            At Proof, we are committed to protecting your privacy and giving you clear,
+            understandable information about how your data is handled. This Privacy Policy
+            explains what we collect, how we use it, and the choices you have when using
+            the Proof app.
           </Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>1. Information We Collect</Text>
           <Text style={styles.sectionText}>
-            <Text style={styles.bold}>None.</Text> Proof is designed to operate entirely offline and does not collect, transmit, or store any personal information on external servers.
+            Proof collects only the data needed to provide the service and let you
+            capture and verify your records.
           </Text>
           <Text style={styles.sectionText}>
-            The only information collected is stored locally on your device:
+            This includes:
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Account credentials (email, hashed password) - stored locally on your device</Text>
-            <Text style={styles.listItem}>• Proof records (notes, photos, timestamps, metadata) - stored locally on your device</Text>
-            <Text style={styles.listItem}>• App preferences and settings - stored locally on your device</Text>
+            <Text style={styles.listItem}>
+              • <Text style={styles.bold}>Account information</Text> – the email
+              address and name you provide when you create an account.
+            </Text>
+            <Text style={styles.listItem}>
+              • <Text style={styles.bold}>Proof records</Text> – notes, timestamps,
+              cryptographic hashes, and other metadata required to create and verify your
+              proofs. Photos you attach to a proof may be stored on your device and/or
+              in secure storage depending on how you use the app.
+            </Text>
+            <Text style={styles.listItem}>
+              • <Text style={styles.bold}>Technical information</Text> – limited
+              diagnostic and analytics information (such as crash logs or basic usage
+              data) to keep Proof reliable and secure.
+            </Text>
           </View>
-          <Text style={styles.sectionText}>
-            All of this data remains on your device and is never transmitted to us or any third party.
-          </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>2. No Data Collection</Text>
+          <Text style={styles.sectionTitle}>2. How We Use Your Data</Text>
           <Text style={styles.sectionText}>
-            Proof does not collect, track, or transmit:
+            We use the information described above only to:
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Personal identification information</Text>
-            <Text style={styles.listItem}>• Usage analytics or telemetry</Text>
-            <Text style={styles.listItem}>• Device information or identifiers</Text>
-            <Text style={styles.listItem}>• Location data (unless you explicitly add it to a record, stored locally only)</Text>
-            <Text style={styles.listItem}>• Behavioral tracking data</Text>
-            <Text style={styles.listItem}>• Crash reports or error logs (unless you explicitly send them)</Text>
+            <Text style={styles.listItem}>• Provide core Proof functionality and keep your records available to you</Text>
+            <Text style={styles.listItem}>• Help you create, export, and verify proofs</Text>
+            <Text style={styles.listItem}>• Maintain and improve the reliability, performance, and security of the app</Text>
+            <Text style={styles.listItem}>• Send essential account-related emails such as verification and password reset messages</Text>
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>3. Data Storage</Text>
           <Text style={styles.sectionText}>
-            All data created and stored in Proof is stored locally on your device using:
+            Proof stores your data using a combination of secure cloud infrastructure and
+            local storage on your device.
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• SQLite database for metadata (proof records, account information)</Text>
-            <Text style={styles.listItem}>• Device file system for photos and media files</Text>
-            <Text style={styles.listItem}>• Secure storage for account credentials and sensitive preferences</Text>
+            <Text style={styles.listItem}>
+              • <Text style={styles.bold}>Cloud storage</Text> for your account,
+              proof records, and related metadata so you can sign in on a new device and
+              access your existing proofs.
+            </Text>
+            <Text style={styles.listItem}>
+              • <Text style={styles.bold}>Local storage</Text> on your device for
+              things like cached content and photo files, depending on your settings and
+              how you use the app.
+            </Text>
+            <Text style={styles.listItem}>
+              • <Text style={styles.bold}>Secure storage</Text> (such as encrypted
+              keychain/secure storage) for authentication tokens and other sensitive data.
+            </Text>
           </View>
           <Text style={styles.sectionText}>
-            Your data never leaves your device. We have no access to your proof records, photos, notes, or any other information stored in the App.
+            We do not sell your data. We use industry-standard security practices to help
+            protect the information we store.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>4. Email Service</Text>
+          <Text style={styles.sectionTitle}>4. Third-Party Services</Text>
           <Text style={styles.sectionText}>
-            Proof uses email services only for essential account functions:
+            We rely on carefully selected third-party providers to help us operate the
+            app. These providers may process limited personal data on our behalf. This
+            may include:
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Email verification PIN codes sent during account creation</Text>
-            <Text style={styles.listItem}>• Password reset PIN codes sent when you request a password reset</Text>
+            <Text style={styles.listItem}>• Email delivery services for account verification and password reset emails</Text>
+            <Text style={styles.listItem}>• Hosting and database providers for secure storage of your account and proof data</Text>
+            <Text style={styles.listItem}>• Analytics or crash-reporting tools to help us diagnose issues and improve the app</Text>
           </View>
           <Text style={styles.sectionText}>
-            These emails are sent using a third-party email service provider (Resend). Your email address is only used for account verification and password recovery. We do not use your email address for marketing, promotional, or any other purposes.
+            These providers are only allowed to use your data to perform services for
+            Proof and must protect it appropriately. We do not allow third parties to
+            use your personal data for their own marketing.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>5. Third-Party Services</Text>
+          <Text style={styles.sectionTitle}>5. Permissions</Text>
           <Text style={styles.sectionText}>
-            Proof uses minimal third-party services:
+            Proof may request the following device permissions:
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Email delivery service (Resend) - only for account verification and password reset emails</Text>
+            <Text style={styles.listItem}>• Camera – to take photos for proof records (optional)</Text>
+            <Text style={styles.listItem}>• Photo Library – to select existing photos for proof records (optional)</Text>
+            <Text style={styles.listItem}>• Location – to optionally tag records with location data (optional)</Text>
+            <Text style={styles.listItem}>• Notifications – to send reminders about logging proofs (optional)</Text>
           </View>
           <Text style={styles.sectionText}>
-            No third-party services have access to your proof records, photos, or any personal data stored in the App. Email addresses are only shared with the email service provider for the sole purpose of sending verification and password reset emails.
+            You can manage or revoke these permissions at any time in your device
+            settings. Some features may not work without the relevant permission.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>6. Permissions</Text>
+          <Text style={styles.sectionTitle}>6. Data Security</Text>
           <Text style={styles.sectionText}>
-            Proof requests the following device permissions:
+            We take reasonable measures to protect your data against accidental or
+            unlawful destruction, loss, alteration, and unauthorized access or
+            disclosure. These measures include:
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Camera - to take photos for proof records (optional)</Text>
-            <Text style={styles.listItem}>• Photo Library - to select existing photos for proof records (optional)</Text>
-            <Text style={styles.listItem}>• Location - to optionally tag records with location data (optional)</Text>
-            <Text style={styles.listItem}>• Notifications - to send daily reminder notifications (optional)</Text>
+            <Text style={styles.listItem}>• Encrypting sensitive data in transit and at rest where appropriate</Text>
+            <Text style={styles.listItem}>• Using secure authentication and access controls</Text>
+            <Text style={styles.listItem}>• Applying security updates and monitoring for potential issues</Text>
           </View>
           <Text style={styles.sectionText}>
-            All permissions are optional and requested only when you choose to use features that require them. You can revoke these permissions at any time through your device settings.
+            No method of transmission or storage is completely secure. You are also
+            responsible for keeping your device and account credentials safe.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>7. Data Security</Text>
+          <Text style={styles.sectionTitle}>7. Your Choices and Rights</Text>
           <Text style={styles.sectionText}>
-            We implement security measures to protect your locally stored data:
+            Depending on your location, you may have certain rights over your personal
+            data, such as the right to access, correct, or delete it.
           </Text>
           <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Passwords are hashed using SHA-256 cryptographic hashing</Text>
-            <Text style={styles.listItem}>• Account credentials stored using device-level secure storage</Text>
-            <Text style={styles.listItem}>• Proof records use SHA-256 hashing for tamper-evidence</Text>
+            <Text style={styles.listItem}>• You can view and manage your proofs from within the app.</Text>
+            <Text style={styles.listItem}>• You can delete individual proofs from inside the app.</Text>
+            <Text style={styles.listItem}>
+              • You can request account and data deletion using the contact options
+              available in the Contact screen of the app.
+            </Text>
           </View>
           <Text style={styles.sectionText}>
-            However, you are responsible for maintaining the security of your device. If your device is lost, stolen, or compromised, your data may be at risk. We recommend using device encryption, screen locks, and other security features provided by your device.
+            We may need to retain certain information where required by law or for
+            legitimate business purposes (for example, to prevent abuse or resolve
+            disputes).
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>8. Data Backup and Recovery</Text>
+          <Text style={styles.sectionTitle}>8. Children's Privacy</Text>
           <Text style={styles.sectionText}>
-            Proof stores all data locally on your device. We do not provide cloud backup services. You are responsible for:
-          </Text>
-          <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• Backing up your device data</Text>
-            <Text style={styles.listItem}>• Exporting important proof records as PDFs if desired</Text>
-            <Text style={styles.listItem}>• Managing your device's backup settings</Text>
-          </View>
-          <Text style={styles.sectionText}>
-            If you uninstall the App or lose access to your device, your data may be permanently lost. We are not responsible for data loss.
+            Proof is not intended for children under the age of 13. We do not knowingly
+            collect personal information from children under 13. If you believe that a
+            child has provided us with personal information, please contact us and we
+            will take appropriate steps to address the issue.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>9. Children's Privacy</Text>
-          <Text style={styles.sectionText}>
-            Proof is not intended for users under the age of 13. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and believe your child has provided us with personal information, please contact us through the Support section.
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>10. Your Rights</Text>
-          <Text style={styles.sectionText}>
-            Since all your data is stored locally on your device, you have complete control over it:
-          </Text>
-          <View style={styles.listContainer}>
-            <Text style={styles.listItem}>• You can view all your data within the App</Text>
-            <Text style={styles.listItem}>• You can export records as PDFs</Text>
-            <Text style={styles.listItem}>• You can delete your account and all associated data at any time</Text>
-            <Text style={styles.listItem}>• You can delete individual proof records (today's record only)</Text>
-          </View>
-          <Text style={styles.sectionText}>
-            To delete your account and all data, use the "Delete Account" feature in Settings. This action is permanent and cannot be undone.
-          </Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>11. Changes to This Privacy Policy</Text>
+          <Text style={styles.sectionTitle}>9. Changes to This Privacy Policy</Text>
           <Text style={styles.sectionText}>
             We may update this Privacy Policy from time to time. We will notify you of any material changes by updating the "Last Updated" date at the top of this document. Your continued use of the App after such modifications constitutes acceptance of the updated Privacy Policy.
           </Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>12. Contact Us</Text>
+          <Text style={styles.sectionTitle}>10. Contact Us</Text>
           <Text style={styles.sectionText}>
-            If you have any questions about this Privacy Policy or our privacy practices, please contact us through the Support section in the App's Settings.
+            If you have any questions about this Privacy Policy or how Proof handles your
+            data, please reach out using the contact options provided in the Contact
+            screen within the app.
           </Text>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            Your privacy is fundamental to Proof. We don't collect anything because we can't. Your data is yours, always.
+            Your privacy is fundamental to Proof. We collect only what we need to run the
+            service and help you capture and verify trustworthy records.
           </Text>
         </View>
       </View>

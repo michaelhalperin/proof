@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -45,7 +45,7 @@ export default function VerifyEmailScreen() {
   useFocusEffect(
     useCallback(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-    }, [])
+    }, []),
   );
 
   const handleVerify = async () => {
@@ -72,12 +72,12 @@ export default function VerifyEmailScreen() {
               text: "OK",
               onPress: () => navigation.navigate("Login"),
             },
-          ]
+          ],
         );
       } else {
         Alert.alert(
           "Verification Failed",
-          "Invalid or expired PIN code. Please request a new one."
+          "Invalid or expired PIN code. Please request a new one.",
         );
         setPin("");
       }
@@ -100,12 +100,12 @@ export default function VerifyEmailScreen() {
       await resendVerificationEmail(email.trim());
       Alert.alert(
         "Email Sent",
-        "A new verification email has been sent to your inbox."
+        "A new verification email has been sent to your inbox.",
       );
     } catch (error: any) {
       Alert.alert(
         "Error",
-        error.message || "Failed to resend verification email"
+        error.message || "Failed to resend verification email",
       );
     } finally {
       setResending(false);

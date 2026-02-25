@@ -12,7 +12,6 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getFontFamily } from "../config/theme";
-import { SUPPORT_EMAIL } from "../config/env";
 import { useAuth } from "../context/AuthContext";
 import { sendSupportEmail } from "../utils/emailService";
 
